@@ -28,7 +28,7 @@ const userschema = new mongoose.Schema({
 userschema.methods.generateAccessToken = async function () {
     return await jwt.sign(
         {
-            _id: this._id,
+            _id: this.userid,
             role: this.role,
         },
         process.env.ACCESS_TOKEN_SECRET,
@@ -42,7 +42,7 @@ userschema.methods.generateAccessToken = async function () {
 userschema.methods.generateRefreshToken = async function () {
     return await jwt.sign(
         {
-            _id: this._id,
+            _id: this.userid,
             role: this.role
         },
         process.env.REFRESH_TOKEN_SECRET,
