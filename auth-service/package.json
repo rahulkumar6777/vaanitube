@@ -1,4 +1,16 @@
 {
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "vaanitube auth-service",
+  "license": "ISC",
+  "author": "Rahul Kumar",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
