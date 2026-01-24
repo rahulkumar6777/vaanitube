@@ -30,7 +30,8 @@ const registerValidate = [
 
 const register = async (req, res) => {
     try {
-        
+        // Run validation
+        await Promise.all(registerValidate.map((validate) => validate.run(req)));
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "internal server error" });
