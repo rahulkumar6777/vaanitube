@@ -1,6 +1,11 @@
 import express from "express"
 
 
+// dotenv
+import dotenv from "dotenv"
+dotenv.config()
+
+
 
 
 // make express app
