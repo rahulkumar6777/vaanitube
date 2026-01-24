@@ -28,6 +28,18 @@ const verifyRegister = async (req, res) => {
             });
         }
 
+        const { otp, email } = req.body;
+
+        // Check OTP 
+        const validateOtp = await Model.OtpValidate.findOne({ email });
+        if (!validateOtp) {
+            return res.status(400).json({ message: "OTP Expired" });
+        }
+
+        if (validateOtp.code !== otp) {
+            return res.status(401).json({ message: "Invalid OTP" });
+        }
+
         
 
     } catch (error) {
