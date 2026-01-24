@@ -55,6 +55,27 @@ const verifyRegister = async (req, res) => {
         });
         await user.save();
 
+        // Send messages to RabbitMQ queues
+        await sendToQueue('useraddonuserservice', {
+            _id: user._id,
+            fullname: tempUser.fullname,
+            username: user.username,
+            email: user.email,
+            role: user.role
+        });
+
+        await sendToQueue('refreshtokenusercreated', {
+            _id: user._id,
+        });
+
+        if (user.role === 'creator') {
+            await sendToQueue('adduserdataonchannelservice', {
+                _id: user._id,
+                fullname: tempUser.fullname,
+                username: user.username,
+            });
+        }
+
         
 
     } catch (error) {
