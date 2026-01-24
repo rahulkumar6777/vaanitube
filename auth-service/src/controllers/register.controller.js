@@ -67,7 +67,31 @@ const register = async (req, res) => {
             }
         }
 
-        
+        // OTP Generator
+        const generateCode = () =>
+            Math.floor(100000 + Math.random() * 900000).toString();
+
+        const saveCodeToDB = async (email) => {
+            const code = generateCode();
+            await Model.OtpValidate.findOneAndUpdate(
+                { email },
+                { code, createdAt: new Date() },
+                { upsert: true, new: true }
+            );
+            return code;
+        };
+
+        const transporter = nodemailer.createTransport({
+            host: "smtp.hostinger.com",
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+    
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "internal server error" });
