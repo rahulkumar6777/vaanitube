@@ -76,7 +76,13 @@ const verifyRegister = async (req, res) => {
             });
         }
 
-        
+        // Cleanup
+        await Model.OtpValidate.deleteOne({ email });
+        await Model.TempUser.deleteOne({ email });
+
+        return res.status(200).json({
+            message: "Registration Success",
+        });
 
     } catch (error) {
         console.log(error);
