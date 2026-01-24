@@ -7,5 +7,6 @@ const router = express.Router();
 
 
 router.post('/init-register', register)
+router.post('/verify-register', verifyRegister)
 
 export default router;
