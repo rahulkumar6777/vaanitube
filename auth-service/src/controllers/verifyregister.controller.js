@@ -40,6 +40,21 @@ const verifyRegister = async (req, res) => {
             return res.status(401).json({ message: "Invalid OTP" });
         }
 
+        // Check temp user
+        const tempUser = await Model.TempUser.findOne({ email });
+        if (!tempUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Create final user
+        const user = new Model.User({
+            username: tempUser.username,
+            password: tempUser.password,
+            email: tempUser.email,
+            role: tempUser.role
+        });
+        await user.save();
+
         
 
     } catch (error) {
