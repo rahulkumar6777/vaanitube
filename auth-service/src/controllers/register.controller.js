@@ -43,6 +43,30 @@ const register = async (req, res) => {
         const { fullname, username, password, email, role } = req.body;
 
         
+        const existingTempUser = await Model.TempUser.findOne({ $or: [{ username }, { email }] });
+        if (existingTempUser) {
+            if (existingTempUser.username === username) {
+                return res.status(400).json({ message: "username already taken" });
+            }
+            if (existingTempUser.email === email) {
+                return res.status(400).json({ message: "email already exists" });
+            }
+        }
+
+        
+        const existingUser = await Model.User.findOne({
+            $or: [{ username }, { email }]
+        });
+
+        if (existingUser) {
+            if (existingUser.username === username) {
+                return res.status(400).json({ message: "username already taken" });
+            }
+            if (existingUser.email === email) {
+                return res.status(400).json({ message: "email is already used" });
+            }
+        }
+
         
     } catch (error) {
         console.error(error);
