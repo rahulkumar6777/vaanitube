@@ -2,3 +2,5 @@ auth-service/node_modules
 auth-service/.env
 user-service/node_modules
 user-service/.env
+refreshToken-service/node_modules
+refreshToken-service/.env
