@@ -7,7 +7,7 @@ dotenv.config()
 
 
 // database connection
-import { dbConnect } from "./src/config/db.connect.js"
+import { dbConnect } from "./src/configs/db.connect.js"
 await dbConnect()
 
 // make express app

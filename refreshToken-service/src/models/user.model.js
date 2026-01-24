@@ -20,6 +20,7 @@ const userschema = new mongoose.Schema({
         type: String,
         enum: ["active", "inactive", "blocked"],
         required: true,
+        default: "active"
     }
 })
 
