@@ -1,6 +1,6 @@
 import { body, validationResult } from "express-validator";
 import nodemailer from "nodemailer";
-import { Model } from "../../models/index.js";
+import { Model } from "../models/index.js";
 
 const registerValidate = [
     body("fullname").notEmpty().withMessage("Fullname is required"),
