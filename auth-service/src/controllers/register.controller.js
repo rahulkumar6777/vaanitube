@@ -91,7 +91,23 @@ const register = async (req, res) => {
             },
         });
 
-    
+        const sendRegistrationCode = async (email) => {
+            const code = await saveCodeToDB(email);
+            await transporter.sendMail({
+                from: `"Vaanitube" <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject: "Your Registration Code",
+                html: `<h1>Your Code is: ${code}</h1>`,
+            });
+        };
+
+        // Send OTP
+        await sendRegistrationCode(email);
+
+        // Save temp user
+        await new Model.TempUser({ fullname, username, password, role, email }).save();
+
+        return res.status(200).json({ message: "OTP sent successfully" });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "internal server error" });
