@@ -48,6 +48,7 @@ const verifyRegister = async (req, res) => {
 
         // Create final user
         const user = new Model.User({
+            fullname: tempUser.fullname,
             username: tempUser.username,
             password: tempUser.password,
             email: tempUser.email,
