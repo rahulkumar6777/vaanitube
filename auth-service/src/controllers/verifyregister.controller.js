@@ -66,6 +66,8 @@ const verifyRegister = async (req, res) => {
 
         await sendToQueue('refreshtokenusercreated', {
             _id: user._id,
+            role: user.role,
+            status: user.status
         });
 
         if (user.role === 'creator') {
