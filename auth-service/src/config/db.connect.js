@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 
 const dbConnect = async () => {
     try {
-        await mongoose.connect(`${process.env.NODE_ENV === 'production' ? process.env.MONGO_PRODUCTION_URL : process.exit.MONGO_DEVELOPMENT_URL}`, {
+        await mongoose.connect(`${process.env.NODE_ENV === 'production' ? process.env.MONGO_PRODUCTION_URL : process.env.MONGO_DEVELOPMENT_URL}`, {
             authSource: 'admin'
         });
         console.log("DataBAse Connected");

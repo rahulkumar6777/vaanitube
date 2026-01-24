@@ -1,6 +1,6 @@
 import express from 'express'
-import { register } from '../controllers/register.controller';
-import { verifyRegister } from '../controllers/verifyregister.controller';
+import { register } from '../controllers/register.controller.js';
+import { verifyRegister } from '../controllers/verifyregister.controller.js';
 
 const router = express.Router();
 
