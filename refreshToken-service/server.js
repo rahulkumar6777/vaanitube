@@ -1,9 +1,14 @@
 import { app } from "./index.js";
 import { initRabbitMQ, closeRabbitMQ } from './src/configs/rabbitmq.config.js';
+import { consumeUserData } from "./src/consumers/index.js";
 
 
 // Initialize RabbitMQ
 await initRabbitMQ();
+
+
+// Import consumers to start processing messages
+await consumeUserData();
 
 
 // Graceful shutdown
