@@ -1,4 +1,5 @@
 import { body, validationResult } from 'express-validator';
+import { Model } from '../models/index.js';
 
 
 const loginValidate = [
@@ -15,6 +16,17 @@ const login = async (req, res) => {
         }
 
         const { username, password } = req.body;
+
+        const user = await Model.User.findOne({ username: username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const isPasswordValid = await user.checkpassword(password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
+        
     } catch (error) {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
