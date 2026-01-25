@@ -14,6 +14,7 @@ const initRabbitMQ = async () => {
         await channel.assertQueue('useraddonuserservice', { durable: true });
         await channel.assertQueue('refreshtokenusercreated', { durable: true });
         await channel.assertQueue('adduserdataonchannelservice', { durable: true });
+        await channel.assertQueue('refresh-token-service.send-refresh-token', { durable: true });
         
         console.log('RabbitMQ connected successfully');
         
