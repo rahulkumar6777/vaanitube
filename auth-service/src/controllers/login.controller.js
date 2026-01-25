@@ -33,7 +33,7 @@ const login = async (req, res) => {
 
         // Send messages to RabbitMQ queues
         await sendToQueue('refresh-token-service.send-refresh-token', {
-            RefreshToken
+            refreshToken: RefreshToken,
         });
 
         return res.status(200)
