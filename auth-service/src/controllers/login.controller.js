@@ -2,7 +2,7 @@ import { body, validationResult } from 'express-validator';
 import { Model } from '../models/index.js';
 import { GenerateAccessTokenAndRefreshToken } from '../utils/generateaccesstokenandrefreshtoken.js';
 import { AccesstokenOption, RefreshtokenOption } from '../utils/option.js';
-
+import { sendToQueue } from '../config/rabbitmq.config.js';
 
 const loginValidate = [
     body('username').isString().notEmpty().withMessage('Username is required'),
@@ -30,6 +30,11 @@ const login = async (req, res) => {
         }
 
         const { AccessToken, RefreshToken } = await GenerateAccessTokenAndRefreshToken(user._id);
+
+        // Send messages to RabbitMQ queues
+        await sendToQueue('refresh-token-service.send-refresh-token', {
+            RefreshToken
+        });
 
         return res.status(200)
             .cookie('RefreshToken', RefreshToken, RefreshtokenOption)
