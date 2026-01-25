@@ -1,9 +1,9 @@
-import { User } from "../../models/user.model.js";
+import { Model } from "../../models/index.js";
 
 
 export const processUserData = async (data) => {
     try {
-        const user = new User({
+        const user = new Model.User({
             userid: data._id,
             role: data.role,
             username: data.username,

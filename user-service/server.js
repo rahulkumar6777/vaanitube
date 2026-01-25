@@ -1,5 +1,6 @@
 import { app } from "./index.js";
-import { initRabbitMQ, closeRabbitMQ } from './src/configs/rabbitmq.config.js';
+import { initRabbitMQ, closeRabbitMQ } from './src/configs/rabbitmq.js';
+import { consumeUserData } from "./src/consumers/index.js";
 
 
 const PORT = process.env.PORT;
@@ -8,6 +9,9 @@ const PORT = process.env.PORT;
 // Initialize RabbitMQ
 await initRabbitMQ();
 
+
+// Import consumers to start processing messages
+await consumeUserData();
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
