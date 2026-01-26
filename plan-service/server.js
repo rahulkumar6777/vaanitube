@@ -9,9 +9,12 @@ dotenv.config();
 import { dbConnect } from "./src/configs/db.connect.js";
 await dbConnect();
 
+// seeding initial plans
+import { seedPlans } from "./src/seed/plan.js";
+await seedPlans();
+
 
 const PORT = process.env.PORT
-
 
 app.listen(PORT, () => {
     console.log(`Plan Service is running on port ${PORT}`);
