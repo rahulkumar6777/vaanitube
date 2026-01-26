@@ -4,6 +4,6 @@ import { user } from "../controllers/index.js";
 
 const router = express.Router();
 
-router.post("/profile/change", verifyJwt , user.changeProfilePic)
+router.put("/profile", verifyJwt , user.changeProfilePic)
 
 export default router;
