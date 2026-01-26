@@ -1,4 +1,5 @@
 import { Model } from '../../models/index.js'
+import { deleteFromDevload } from '../../utils/devload.delete.js';
 import { uploadToDevload } from '../../utils/devload.upload.js';
 import fs from 'fs';
 
@@ -11,14 +12,26 @@ const ProfileChange = async (req, res) => {
 
         const uploadResponse = await uploadToDevload(localFilePath);
         if (!uploadResponse) {
+            fs.unlinkSync(localFilePath)
             return res.status(500).json({ message: "File upload failed" });
         }
 
-        const updatedUser = await Model.User.findOneAndUpdate(
-            { userid },
-            { profilepic: uploadResponse.publicUrl, profilefileid: uploadResponse.fileid },
-            { new: true }
-        );
+        const updatedUser = await Model.User.findOne({ userid });
+
+        if (updatedUser.profilefileid) {
+            const deleteResponse = await deleteFromDevload(updatedUser.profilefileid);
+
+            if (!deleteResponse) {
+                fs.unlinkSync(localFilePath)
+                return res.status(500).json({ message: "File deletion failed" });
+            }
+        }
+
+        updatedUser.profilepic = uploadResponse.publicUrl;
+        updatedUser.profilefileid = uploadResponse.fileid;
+
+        await updatedUser.save();
+
 
         fs.promises.unlink(localFilePath)
 
