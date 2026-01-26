@@ -10,9 +10,8 @@ import { dbConnect } from "./src/configs/db.connect.js";
 await dbConnect();
 
 // seeding initial plans
-import { seedPlans } from "./src/seed/plan.js";
-await seedPlans();
-
+import { runSeed } from "./src/seed/seed.js";
+await runSeed();
 
 const PORT = process.env.PORT
 
