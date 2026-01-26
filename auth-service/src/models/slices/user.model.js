@@ -54,6 +54,7 @@ userschema.methods.generateAccessToken = async function () {
         {
             _id: this.id,
             role: this.role,
+            status: this.status
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -66,6 +67,7 @@ userschema.methods.generateRefreshToken = async function () {
     return await jwt.sign(
         {
             _id: this._id,
+            status: this.status
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
