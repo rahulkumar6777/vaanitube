@@ -13,6 +13,13 @@ await initRabbitMQ();
 // Import consumers to start processing messages
 await consumeUserData();
 
+
+
+// routes would be here
+import userRouter from "./src/routes/user.router.js";
+
+app.use("/api/v1/user", userRouter);
+
 // Graceful shutdown
 process.on('SIGINT', async () => {
     await closeRabbitMQ();
