@@ -3,7 +3,7 @@ import { uploadToDevload } from '../../utils/devload.upload.js';
 
 const ProfileChange = async (req, res) => {
     try {
-        const { userid } = req.user;
+        const  userid  = req.user._id;
 
         const localFilePath = req.file?.path;
 
