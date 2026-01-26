@@ -5,3 +5,10 @@ user-service/.env
 user-service/uploads
 refreshToken-service/node_modules
 refreshToken-service/.env
+plan-service/node_modules
+plan-service/.env
+channel-service/node_modules
+channel-service/.env
+channel-service/uploads
+subscription-service/node_modules
+subscription-service/.env
