@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://api-devload.cloudcoderhub.in/public/695f91881242b7ee566ffeea/17693668170573e8c5dea066b2d0f26f74a44.jpg"
     },
+    profilefileid: {
+        type: String,
+        default: null
+    },
     role: {
         type: String,
         required: true,
