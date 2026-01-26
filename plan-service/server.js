@@ -5,6 +5,10 @@ import app from "./index.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
+// db connection
+import { dbConnect } from "./src/configs/db.connect.js";
+await dbConnect();
+
 
 const PORT = process.env.PORT
 
