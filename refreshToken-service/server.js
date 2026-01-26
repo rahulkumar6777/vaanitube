@@ -11,6 +11,13 @@ await initRabbitMQ();
 await consumeUserData();
 
 
+
+// route handlers can be added here
+import userRoutes from './src/routes/user.route.js';
+
+
+app.use('api/v1/user', userRoutes);
+
 // Graceful shutdown
 process.on('SIGINT', async () => {
     await closeRabbitMQ();
