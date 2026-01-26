@@ -1,5 +1,11 @@
 import app from "./index.js";
 
+
+// Load environment variables
+import dotenv from 'dotenv';
+dotenv.config();
+
+
 const PORT = process.env.PORT
 
 
