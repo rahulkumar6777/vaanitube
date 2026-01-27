@@ -53,7 +53,8 @@ const channelschema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['draft', 'active', 'suspended'],
-        required: true
+        required: true,
+        default: 'draft'
     },
     planId: {
         type: String,
