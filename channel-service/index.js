@@ -1,4 +1,4 @@
-import exprees from " exprees";
+import express from " express";
 
 
 //database connection
@@ -11,12 +11,12 @@ import { initRabbitMQ } from "./src/configs/rabbitmq.js";
 await initRabbitMQ();
 
 
-const app = exprees();
+const app = express();
 
 
 // express middleware
-app.use(exprees.json());
-app.use(exprees.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 // seciurity middleware
