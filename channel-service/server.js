@@ -1,7 +1,11 @@
 import app from "./index.js";
 
 
-const PORT = process.eventNames.PORT || 5003
+const PORT = process.env.PORT || 5003
+
+// rabbitmq connection
+import { initRabbitMQ } from "./src/configs/rabbitmq.js";
+await initRabbitMQ();
 
 
 // routes

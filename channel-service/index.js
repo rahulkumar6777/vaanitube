@@ -1,14 +1,13 @@
-import express from " express";
+import express from "express";
 
+
+// dotenv config
+import dotenv from "dotenv";
+dotenv.config();
 
 //database connection
 import { dbConnect } from "./src/configs/db.connect.js"
 await dbConnect();
-
-
-// rabbitmq connection
-import { initRabbitMQ } from "./src/configs/rabbitmq.js";
-await initRabbitMQ();
 
 
 const app = express();
