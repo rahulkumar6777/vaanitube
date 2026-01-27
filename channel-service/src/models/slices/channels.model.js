@@ -10,6 +10,8 @@ const channelschema = new mongoose.Schema({
         required: true,
         unique: true,
         index: true,
+        lowercase: true,
+        trim: true
     },
     channelAvatar: {
         type: String,
