@@ -11,6 +11,14 @@ const channelschema = new mongoose.Schema({
         unique: true,
         index: true,
     },
+    channelAvatar: {
+        type: String,
+        required: false,
+    },
+    channelBanner: {
+        type: String,
+        required: false,
+    },
     ownerId: {
         type: String,
         required: true,
