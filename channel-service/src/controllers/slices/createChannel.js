@@ -16,8 +16,14 @@ const createChannel = async (req, res) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array()[0].msg });
         }
-        
+
         const { name } = req.body;
+
+        // create channel username by using entered name and appending a random number
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        const channelUsername = name.toLowerCase().replace(/\s+/g, '') + randomNum;
+
+        
     } catch (error) {
         console.error('Error creating channel:', error);
         res.status(500).json({ message: 'Internal server error' });
