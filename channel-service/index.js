@@ -12,6 +12,9 @@ await initRabbitMQ();
 
 const app = exprees();
 
+// express middleware
+app.use(exprees.json());
+app.use(exprees.urlencoded({ extended: true }));
 
 
 
