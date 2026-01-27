@@ -18,4 +18,4 @@ const channelSettingsSchema = new mongoose.Schema({
     },
 });
 
-export const ChannelSettings = mongoose.model('ChannelSettings', channelSettingsSchema);
+export const ChannelSetting = mongoose.model('ChannelSetting', channelSettingsSchema);
