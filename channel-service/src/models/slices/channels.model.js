@@ -10,8 +10,18 @@ const channelschema = new mongoose.Schema({
         required: true,
         unique: true,
         index: true,
+        lowercase: true,
+        trim: true
     },
     channelAvatar: {
+        type: String,
+        required: false,
+    },
+    channelAvatarId: {
+        type: String,
+        required: false,
+    },
+    channelBannerId: {
         type: String,
         required: false,
     },
@@ -43,7 +53,8 @@ const channelschema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['draft', 'active', 'suspended'],
-        required: true
+        required: true,
+        default: 'draft'
     },
     planId: {
         type: String,
