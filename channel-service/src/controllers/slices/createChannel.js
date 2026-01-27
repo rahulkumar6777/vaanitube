@@ -1,4 +1,6 @@
 import { body, validationResult } from 'express-validator';
+import { Model } from "../../models/index.js"
+
 
 const channelValidate = [
     body('name')
@@ -14,7 +16,7 @@ const createChannel = async (req, res) => {
 
         const user = req.user;
 
-        if(user.role !== 'creator') {
+        if (user.role !== 'creator') {
             return res.status(403).json({ message: 'Only creators can create channels' });
         }
 
@@ -28,8 +30,23 @@ const createChannel = async (req, res) => {
 
         // create channel username by using entered name and appending a random number
         const randomNum = Math.floor(1000 + Math.random() * 9000);
-        const channelUsername = name.toLowerCase().replace(/\s+/g, '') + randomNum;
+        let channelUsername = name.toLowerCase().replace(/\s+/g, '') + randomNum;
 
+        if (await Model.Channel.findOne({ channelUsername })) {
+            channelUsername = name.toLowerCase().replace(/\s+/g, '') + randomNum;
+        }
+
+        const newChannel = new Model.Channel({
+            name,
+            channelUsername,
+            ownerId: user.id,
+            description: '',
+            status: 'draft'
+        });
+
+        await newChannel.save();
+
+        res.status(201).json({ message: 'Channel created successfully', channel: newChannel });
 
     } catch (error) {
         console.error('Error creating channel:', error);
