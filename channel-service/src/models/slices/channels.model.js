@@ -15,6 +15,14 @@ const channelschema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    channelAvatarId: {
+        type: String,
+        required: false,
+    },
+    channelBannerId: {
+        type: String,
+        required: false,
+    },
     channelBanner: {
         type: String,
         required: false,
