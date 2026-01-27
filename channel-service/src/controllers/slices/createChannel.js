@@ -11,6 +11,13 @@ const channelValidate = [
 
 const createChannel = async (req, res) => {
     try {
+
+        const user = req.user;
+
+        if(user.role !== 'creator') {
+            return res.status(403).json({ message: 'Only creators can create channels' });
+        }
+
         await Promise.all(channelValidate.map(validation => validation.run(req)));
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -23,7 +30,7 @@ const createChannel = async (req, res) => {
         const randomNum = Math.floor(1000 + Math.random() * 9000);
         const channelUsername = name.toLowerCase().replace(/\s+/g, '') + randomNum;
 
-        
+
     } catch (error) {
         console.error('Error creating channel:', error);
         res.status(500).json({ message: 'Internal server error' });
