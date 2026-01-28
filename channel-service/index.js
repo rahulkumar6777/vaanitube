@@ -10,6 +10,11 @@ import { dbConnect } from "./src/configs/db.connect.js"
 await dbConnect();
 
 
+// redis connection
+import { connectRedis } from "./src/configs/redis.js";
+await connectRedis();
+
+
 const app = express();
 
 
