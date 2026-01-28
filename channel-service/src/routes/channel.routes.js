@@ -1,4 +1,4 @@
-import express from "exprees";
+import express from "express";
 
 const channelRouter = express.Router();
 
