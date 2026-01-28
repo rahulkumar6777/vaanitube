@@ -10,5 +10,11 @@ plan-service/.env
 channel-service/node_modules
 channel-service/.env
 channel-service/uploads
-subscription-service/node_modules
-subscription-service/.env
+channel-subscriber-service/node_modules
+channel-subscriber-service/.env
+channel-member-service/node_modules
+channel-member-service/.env
+platform-subscription-service/node_modules
+platform-subscription-service/.env
+billing-service/node_modules
+billing-service/.env
