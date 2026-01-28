@@ -19,4 +19,9 @@ await initRabbitMQ();
 const app = express();
 
 
+// express middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
 export default app;
