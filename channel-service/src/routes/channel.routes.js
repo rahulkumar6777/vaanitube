@@ -5,8 +5,11 @@ import verifyJwt from "../middlewares/verifyJwt.middleware.js";
 
 const channelRouter = express.Router();
 
-channelRouter.route('/channel').post(verifyJwt , channel.create)
-channelRouter.get('/channel/validate' , verifyMiddleware , channel.validate)
-channelRouter.patch('/channel/:channelId/avatar' , verifyJwt , channel.avatar)
+
+channelRouter.route('/channel').post(verifyJwt , channel.create);
+channelRouter.get('/channel/validate' , verifyMiddleware , channel.validate);
+channelRouter.patch('/channel/:channelId/avatar' , verifyJwt , channel.avatar);
+channelRouter.patch('/channel/:channelId/banner' , verifyJwt , channel.banner);
+
 
 export { channelRouter };
