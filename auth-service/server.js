@@ -13,6 +13,12 @@ import userRoutes from './src/routes/user.routes.js'
 
 
 
+// validate internal secret
+import internalSecret from "./src/middlewares/internalSecret.js";
+app.use(internalSecret)
+
+
+
 app.use('/', userRoutes)
 
 
