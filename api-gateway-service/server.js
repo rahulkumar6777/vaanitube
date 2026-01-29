@@ -4,6 +4,9 @@ dotenv.config();
 import express from 'express'
 const app = express();
 
+app.use(express.json());
+
+
 //cors
 import cors from 'cors'
 import { corsOption } from './src/middlewares/cors.middleware';
