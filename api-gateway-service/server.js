@@ -9,7 +9,7 @@ app.use(express.json());
 
 //cors
 import cors from 'cors'
-import { corsOption } from './src/middlewares/cors.middleware';
+import { corsOption } from './src/middlewares/cors.middleware.js';
 app.use(cors(corsOption))
 
 
