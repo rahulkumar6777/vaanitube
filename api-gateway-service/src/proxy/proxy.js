@@ -1,6 +1,6 @@
 import { createProxyMiddleware } from 'http-proxy-middleware'
 
-module.exports = (target) =>
+export default (target) =>
     createProxyMiddleware({
         target,
         changeOrigin: true,
