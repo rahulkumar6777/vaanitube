@@ -13,7 +13,7 @@ import userRoutes from './src/routes/user.routes.js'
 
 
 
-app.use('/api/v1/auth', userRoutes)
+app.use('/', userRoutes)
 
 
 // Graceful shutdown

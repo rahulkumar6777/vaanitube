@@ -13,10 +13,10 @@ await consumeUserData();
 
 
 // route handlers can be added here
-import userRoutes from './src/routes/user.route.js';
+import refreshRoutes from './src/routes/user.route.js';
 
 
-app.use('api/v1/user', userRoutes);
+app.use('/', refreshRoutes);
 
 // Graceful shutdown
 process.on('SIGINT', async () => {

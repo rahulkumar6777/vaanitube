@@ -18,7 +18,7 @@ await consumeUserData();
 // routes would be here
 import userRouter from "./src/routes/user.router.js";
 
-app.use("/api/v1/user", userRouter);
+app.use("/", userRouter);
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
