@@ -13,6 +13,11 @@ import internalSecretMiddleware from "./src/middlewares/internalSecret.middlewar
 app.use(internalSecretMiddleware);
 
 
+
+import userContextMiddleware from "./src/middlewares/userContext.middleware.js";
+app.use(userContextMiddleware)
+
+
 // routes
 import { channelRouter } from "./src/routes/channel.routes.js";
 
