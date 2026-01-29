@@ -9,7 +9,7 @@ const userBasedRateLimit = async (req, res, next) => {
             await client.expire(key, 60)
         }
 
-        if (count === 100) {
+        if (count >= 100) {
             return res.status(429).json({ message: "Too many requests" });
         }
 
