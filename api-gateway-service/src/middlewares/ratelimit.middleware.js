@@ -1,4 +1,6 @@
 import { client } from "../configs/redis.js";
+import rateLimit from 'express-rate-limit';
+
 
 const userBasedRateLimit = async (req, res, next) => {
     try {
@@ -20,3 +22,14 @@ const userBasedRateLimit = async (req, res, next) => {
         })
     }
 }
+
+
+const ipBasedRateLimit = rateLimit({
+    windowMs: 60 * 1000,
+    max: 50,
+    message: { message: "Too many requests from this IP" },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+export { userBasedRateLimit, ipBasedRateLimit }
