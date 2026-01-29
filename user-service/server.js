@@ -14,6 +14,11 @@ await initRabbitMQ();
 await consumeUserData();
 
 
+// validate internal secret
+import internalSecretMiddleware from "./src/middlewares/internalSecret.middleware.js";
+app.use(internalSecretMiddleware);
+
+
 
 // routes would be here
 import userRouter from "./src/routes/user.router.js";
