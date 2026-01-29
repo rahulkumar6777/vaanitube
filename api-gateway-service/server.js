@@ -13,6 +13,8 @@ import { corsOption } from './src/middlewares/cors.middleware';
 app.use(cors(corsOption))
 
 
+app.get("/health", (req, res) => res.send("OK"));
+
 app.listen(process.env.PORT, () => {
     console.log(`API Gateway running on port ${process.env.PORT}`);
 });
