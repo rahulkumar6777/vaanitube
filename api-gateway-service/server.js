@@ -12,6 +12,8 @@ import cors from 'cors'
 import { corsOption } from './src/middlewares/cors.middleware';
 app.use(cors(corsOption))
 
+app.use("/auth", require("./routes/auth.routes"));
+
 
 app.get("/health", (req, res) => res.send("OK"));
 
