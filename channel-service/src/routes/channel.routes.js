@@ -7,7 +7,7 @@ const channelRouter = express.Router();
 
 
 channelRouter.route('/').post(verifyJwt , channel.create);
-channelRouter.get('/validate' , verifyMiddleware , channel.validate);
+channelRouter.get('/validate'  , channel.validate);
 channelRouter.patch('/:channelId/avatar' , verifyJwt , channel.avatar);
 channelRouter.patch('/:channelId/banner' , verifyJwt , channel.banner);
 

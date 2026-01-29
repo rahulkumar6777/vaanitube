@@ -8,11 +8,16 @@ import { closeRabbitMQ, initRabbitMQ } from "./src/configs/rabbitmq.js";
 await initRabbitMQ();
 
 
+// validate internal secret
+import internalSecretMiddleware from "./src/middlewares/internalSecret.middleware.js";
+app.use(internalSecretMiddleware);
+
+
 // routes
 import { channelRouter } from "./src/routes/channel.routes.js";
 
 
-app.use("/" , channelRouter);
+app.use("/", channelRouter);
 
 
 // Graceful shutdown
@@ -26,6 +31,6 @@ process.on('SIGTERM', async () => {
     process.exit(0);
 });
 
-app.listen(PORT , () => {
+app.listen(PORT, () => {
     console.log(`Channel service is running on port ${PORT}`);
 })
