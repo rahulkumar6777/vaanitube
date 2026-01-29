@@ -1,5 +1,6 @@
 import { body, validationResult } from 'express-validator';
 import { Model } from "../../models/index.js"
+import { client } from '../../configs/redis.js';
 
 
 const channelValidate = [
@@ -45,6 +46,8 @@ const createChannel = async (req, res) => {
         });
 
         await newChannel.save();
+        
+        await client.sAdd('channels:exists', newChannel._id.toString());
 
         res.status(201).json({ message: 'Channel created successfully', channel: newChannel });
 
