@@ -12,7 +12,7 @@ await initRabbitMQ();
 import { channelRouter } from "./src/routes/channel.routes.js";
 
 
-app.use("/api/v1" , channelRouter);
+app.use("/" , channelRouter);
 
 
 // Graceful shutdown
