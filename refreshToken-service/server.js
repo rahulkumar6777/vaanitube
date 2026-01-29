@@ -16,7 +16,7 @@ await consumeUserData();
 import refreshRoutes from './src/routes/user.route.js';
 
 
-app.use('/refresh', refreshRoutes);
+app.use('/', refreshRoutes);
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
