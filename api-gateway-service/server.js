@@ -15,12 +15,14 @@ app.use(cors(corsOption))
 import authRoutes from './src/routes/auth.routes.js'
 import refreshRoutes from './src/routes/auth.routes.js'
 import userRoutes from "./src/routes/user.routes.js"
+import channelRoutes from "./src/routes/channel.routes.js"
 
 
 // routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/refresh", refreshRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/channel", channelRoutes);
 
 
 app.get("/health", (req, res) => res.send("OK"));
