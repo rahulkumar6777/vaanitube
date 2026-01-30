@@ -1,8 +1,20 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
+const channelSubscriberSchema = new mongoose.Schema({
+    channelId: {
+        type: String,
+        required: true,
+        index: true,
+    },
+    userId: {
+        type: String,
+        required: true,
+        index: true,
+    },
+}, {
+    timestamps: true
+});
 
-const channelSubscriberschema = new mongoose.Schema({
+channelSubscriberSchema.index({ channelId: 1, userId: 1 }, { unique: true });
 
-})
-
-export const ChannelSubscriber = mongoose.model("ChannelSubscriber", channelSubscriberschema)
+export const ChannelSubscriber = mongoose.model("ChannelSubscriber", channelSubscriberSchema);
