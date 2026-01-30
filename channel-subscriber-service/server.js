@@ -14,6 +14,14 @@ import userContextMiddleware from "./src/middlewares/userContext.middleware.js";
 app.use(userContextMiddleware)
 
 
+// routes path
+import channelSubscriberRoutes from "./src/Routes/channelSubscriber.routes.js";
+
+
+app.use('/', channelSubscriberRoutes)
+
+
+
 // server listen
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);
