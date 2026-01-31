@@ -16,7 +16,7 @@ const channelSubscribe = async (req, res) => {
             })
         }
 
-        const result = await client.sismember(`channel:${channelId}:subscribers`, user._id);
+        const result = await client.sIsMember(`channel:${channelId}:subscribers`, user._id);
         if (result === 1) {
             return res.status(409).json({
                 message: "already subscribed"
@@ -45,8 +45,8 @@ const channelSubscribe = async (req, res) => {
         const ch = await ChannelSubscriber.create({ channelId: channelId, userId: user._id });
 
 
-        await client.sadd(`channel:${channelId}:subscribers`, user._id);
-        await client.sadd(`user:${user._id}:subscriptions`, channelId);
+        await client.sAdd(`channel:${channelId}:subscribers`, user._id);
+        await client.sAdd(`user:${user._id}:subscriptions`, channelId);
         await client.incr(`channel:${channelId}:subscriberCount`);
 
         // send response
