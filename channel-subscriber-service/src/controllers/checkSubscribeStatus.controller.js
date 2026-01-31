@@ -3,7 +3,7 @@ import { ChannelSubscriber } from "../models/channelSubscriber.model.js";
 import { channelValidate } from "../utils/channelValidate.js";
 
 
-const checkSubscriberStatus = async (req, res) => {
+const checkSubscribeStatus = async (req, res) => {
     try {
 
         const channelId = req.params.channelId;
@@ -46,4 +46,4 @@ const checkSubscriberStatus = async (req, res) => {
     }
 }
 
-export { checkSubscriberStatus }
+export { checkSubscribeStatus }
