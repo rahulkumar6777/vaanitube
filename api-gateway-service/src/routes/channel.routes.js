@@ -7,5 +7,6 @@ import verifyJwt from '../middlewares/verifyJwt.middleware.js';
 const router = express.Router();
 
 router.use("/", verifyJwt, userBasedRateLimit, proxy(services.channel));
+router.use('/:channelId/subscribers', proxy(services.channelSubscriber))
 
 export default router;
