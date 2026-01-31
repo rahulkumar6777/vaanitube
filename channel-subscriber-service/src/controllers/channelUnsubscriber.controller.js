@@ -11,7 +11,7 @@ const channelUnsubscribe = async (req, res) => {
         // check channel is valid or not
         const response = await channelValidate(channelId);
         if (!response) {
-            return res.status(500).json({
+            return res.status(404).json({
                 error: "invalid channelId"
             })
         }

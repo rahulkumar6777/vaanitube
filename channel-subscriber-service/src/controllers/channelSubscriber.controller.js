@@ -7,7 +7,7 @@ const getSubscriberCount = async (req, res) => {
 
     const response = await channelValidate(channelId);
     if (!response) {
-        return res.status(500).json({
+        return res.status(404).json({
             error: "invalid channelId"
         })
     }
