@@ -17,10 +17,10 @@ const channelUnsubscribe = async (req, res) => {
         }
 
         // check user subscriberd or not in redis
-        const result = await client.sismember(`channel:${channelId}:subscribers`, user._id);
+        const result = await client.sIsMember(`channel:${channelId}:subscribers`, user._id);
         if (result === 1) {
-            await client.srem(`channel:${channelId}:subscribers`, user._id);
-            await client.srem(`user:${user._id}:subscriptions`, channelId);
+            await client.sRem(`channel:${channelId}:subscribers`, user._id);
+            await client.sRem(`user:${user._id}:subscriptions`, channelId);
         }
 
 
