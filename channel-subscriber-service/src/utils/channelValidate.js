@@ -4,6 +4,9 @@ export const channelValidate = async (channelId,) => {
     try {
         // check channel is valid or not
         const channelExists = await client.sIsMember(`channel:exist`, channelId.toString());
+        if (channelExists === 1) {
+            return true;
+        }
         if (!channelExists) {
 
             // here i check from other microservice if not cache not exists
@@ -16,12 +19,14 @@ export const channelValidate = async (channelId,) => {
             });
 
             if (response.status !== 200) {
-                // cache response
-                await client.sAdd('channel:exist', channelId.toString());
+                return false;
             }
-            return response;
+
+
+            await client.sAdd("channel:exist", channelId.toString());
+            return true;
         }
     } catch (error) {
-        return null;
+        return false;
     }
 }
