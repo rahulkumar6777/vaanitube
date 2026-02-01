@@ -5,6 +5,7 @@ import { createChannel } from "./slices/createChannel.js";
 import { channelSubscribe } from "./slices/channelSubscribe.controller.js";
 import { channelUnsubscribe } from "./slices/channelUnsubscribe.controller.js";
 import { getSubscriberCount } from "./slices/channelSubscriber.controller.js";
+import { checkSubscribeStatus } from "./slices/checkSubscribeStatus.controller.js";
 
 export const channel = {
     create: createChannel,
@@ -13,5 +14,6 @@ export const channel = {
     banner: channelBanner,
     subscribe: channelSubscribe,
     unsubscriber: channelUnsubscribe,
-    Subscibers: getSubscriberCount
+    Subscibers: getSubscriberCount,
+    subscribed: checkSubscribeStatus
 }
