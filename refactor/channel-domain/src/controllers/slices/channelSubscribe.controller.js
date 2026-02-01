@@ -1,34 +1,22 @@
 import { Model } from '../../models/index.js'
 import { client } from "../configs/redis.js";
-
+import { channelValidate } from '../../utils/channelValidate.js';
 
 const channelSubscribe = async (req, res) => {
     try {
         const user = req.user;
         const channelId = req.params.channelId;
 
-        // firct check on chache if not exist then check on fall on db
-        const validateChannel = await client.hGetAll(`channel:${channelId}`);
-
-        if (!validateChannel) {
-            const response = await Model.channel.findById(channelId);
-            if (!response || response.ownerId === user._id) {
-                return res.status(404).json({
-                    error: "invalid channelId or you can't subscriber own channel"
-                })
-            }
-
-            await client.hSet(
-                `channel:exist:${newChannel._id.toString()}`,
-                {
-                    ownerId: newChannel.ownerId.toString(),
-                }
-            );
-        }
-
-        if (validateChannel.ownerId === user._id.toString()) {
+        // here i validate channel id 
+        const response = await channelValidate(channelId);
+        if (!response) {
             return res.status(404).json({
-                error: "you can't subscriber own channel"
+                error: "invalid channelId"
+            })
+        }
+        if (response.ownerId === user._id) {
+            return res.status(400).json({
+                error: "invalid channelId or you can't subscriber own channel"
             })
         }
 
