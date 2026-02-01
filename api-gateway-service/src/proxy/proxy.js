@@ -1,6 +1,7 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { log } from '../utils/logger.js';
 
-export default (target) =>
+export default (target, serviceName) =>
     createProxyMiddleware({
         target,
         changeOrigin: true,
@@ -14,22 +15,22 @@ export default (target) =>
                 }
             },
 
-            onProxyRes(proxyRes, req, res) {
+            proxyRes(proxyRes, req, res) {
                 const latency = Date.now() - proxyRes.req.startTime;
 
                 log({
                     traceId: req.traceId,
-                    service: service.name,
+                    service: serviceName,
                     method: req.method,
                     path: req.originalUrl,
                     statusCode: proxyRes.statusCode,
                     latency: `${latency}ms`
                 });
             },
-            onError(err, req) {
+            error(err, req) {
                 log({
                     traceId: req.traceId,
-                    service: service.name,
+                    service: serviceName,
                     error: err.message
                 });
             }
