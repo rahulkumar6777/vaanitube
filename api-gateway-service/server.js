@@ -7,8 +7,8 @@ const app = express();
 
 import { log } from './src/utils/logger.js';
 import { traceMiddleware } from './src/middlewares/trace.middleware.js';
-app.use(log)
 app.use(traceMiddleware)
+app.use(log)
 
 
 //cors
