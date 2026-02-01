@@ -27,7 +27,7 @@ export default (target, serviceName) =>
                     latency: `${latency}ms`
                 });
             },
-            onError(err, req) {
+            error(err, req) {
                 log({
                     traceId: req.traceId,
                     service: serviceName,
