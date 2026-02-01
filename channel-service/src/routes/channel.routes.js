@@ -1,15 +1,18 @@
 import express from "express";
-import { verifyMiddleware } from "../middlewares/verify.middleware.js";
 import { channel } from "../controllers/index.js";
-import verifyJwt from "../middlewares/verifyJwt.middleware.js";
 
 const channelRouter = express.Router();
 
 
-channelRouter.route('/').post(verifyJwt , channel.create);
-channelRouter.get('/validate' , verifyMiddleware , channel.validate);
-channelRouter.patch('/:channelId/avatar' , verifyJwt , channel.avatar);
-channelRouter.patch('/:channelId/banner' , verifyJwt , channel.banner);
+channelRouter.route('/').post(channel.create);
+channelRouter.get('/validate', channel.validate);
+channelRouter.patch('/:channelId/avatar', channel.avatar);
+channelRouter.patch('/:channelId/banner', channel.banner);
+channelRouter.post('/:channelId/subscribe' , channel.subscribe)
+channelRouter.delete('/:channelId/unsubscribe' , channel.unsubscriber)
+channelRouter.get('/:channelId/subscribers' , channel.unsubscriber)
+channelRouter.get('/:channelId/subscribed' , channel.subscribed)
+channelRouter.get('/me' , channel.user.subscribedChannels)
 
 
 export { channelRouter };
