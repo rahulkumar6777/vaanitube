@@ -1,6 +1,7 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { log } from '../utils/logger.js';
 
-export default (target , serviceName) =>
+export default (target, serviceName) =>
     createProxyMiddleware({
         target,
         changeOrigin: true,
