@@ -9,10 +9,8 @@ const app = express();
 await connectRedis()
 
 
-import { loggerMiddleware } from './src/middlewares/logger.middleware.js';
 import { traceMiddleware } from './src/middlewares/trace.middleware.js';
 app.use(traceMiddleware)
-app.use(loggerMiddleware)
 
 
 //cors

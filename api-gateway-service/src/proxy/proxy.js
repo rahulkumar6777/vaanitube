@@ -15,7 +15,7 @@ export default (target, serviceName) =>
                 }
             },
 
-            onProxyRes(proxyRes, req, res) {
+            proxyRes(proxyRes, req, res) {
                 const latency = Date.now() - proxyRes.req.startTime;
 
                 log({
