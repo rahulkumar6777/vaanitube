@@ -12,6 +12,7 @@ channelRouter.post('/:channelId/subscribe' , channel.subscribe)
 channelRouter.delete('/:channelId/unsubscribe' , channel.unsubscriber)
 channelRouter.get('/:channelId/subscribers' , channel.unsubscriber)
 channelRouter.get('/:channelId/subscribed' , channel.subscribed)
+channelRouter.get('/me' , channel.user.subscribedChannels)
 
 
 export { channelRouter };
