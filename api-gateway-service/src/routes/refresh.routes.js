@@ -5,6 +5,6 @@ import services from '../configs/services.js';
 
 const router = express.Router();
 
-router.use("/", ipBasedRateLimit, proxy(services.auth , "Auth-Service"));
+router.use("/", ipBasedRateLimit, proxy(services.refreshToken , "refresh-token-service"));
 
 export default router;

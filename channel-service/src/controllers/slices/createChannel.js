@@ -46,8 +46,13 @@ const createChannel = async (req, res) => {
         });
 
         await newChannel.save();
-        
-        await client.sAdd('channels:exists', newChannel._id.toString());
+
+        await client.hSet(
+            `channel:exist:${newChannel._id.toString()}`,
+            {
+                ownerId: newChannel.ownerId.toString(),
+            }
+        );
 
         res.status(201).json({ message: 'Channel created successfully', channel: newChannel });
 
