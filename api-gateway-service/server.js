@@ -5,6 +5,10 @@ import express from 'express'
 const app = express();
 
 
+// redis connect
+await connectRedis()
+
+
 import { loggerMiddleware } from './src/middlewares/logger.middleware.js';
 import { traceMiddleware } from './src/middlewares/trace.middleware.js';
 app.use(traceMiddleware)
@@ -22,6 +26,7 @@ import authRoutes from './src/routes/auth.routes.js'
 import refreshRoutes from './src/routes/auth.routes.js'
 import userRoutes from "./src/routes/user.routes.js"
 import channelRoutes from "./src/routes/channel.routes.js"
+import { connectRedis } from './src/configs/redis.js';
 
 
 // routes
