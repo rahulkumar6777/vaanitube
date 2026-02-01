@@ -5,10 +5,10 @@ import express from 'express'
 const app = express();
 
 
-import { log } from './src/utils/logger.js';
+import { loggerMiddleware } from './src/middlewares/logger.middleware.js';
 import { traceMiddleware } from './src/middlewares/trace.middleware.js';
 app.use(traceMiddleware)
-app.use(log)
+app.use(loggerMiddleware)
 
 
 //cors
@@ -22,6 +22,7 @@ import authRoutes from './src/routes/auth.routes.js'
 import refreshRoutes from './src/routes/auth.routes.js'
 import userRoutes from "./src/routes/user.routes.js"
 import channelRoutes from "./src/routes/channel.routes.js"
+import { loggerMiddleware } from './src/middlewares/logger.middleware.js';
 
 
 // routes

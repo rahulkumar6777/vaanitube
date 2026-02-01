@@ -1,6 +1,6 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
-export default (target) =>
+export default (target , serviceName) =>
     createProxyMiddleware({
         target,
         changeOrigin: true,
@@ -19,7 +19,7 @@ export default (target) =>
 
                 log({
                     traceId: req.traceId,
-                    service: service.name,
+                    service: serviceName,
                     method: req.method,
                     path: req.originalUrl,
                     statusCode: proxyRes.statusCode,
@@ -29,7 +29,7 @@ export default (target) =>
             onError(err, req) {
                 log({
                     traceId: req.traceId,
-                    service: service.name,
+                    service: serviceName,
                     error: err.message
                 });
             }
