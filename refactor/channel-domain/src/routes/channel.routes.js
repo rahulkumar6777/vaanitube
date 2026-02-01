@@ -9,7 +9,8 @@ channelRouter.get('/validate', channel.validate);
 channelRouter.patch('/:channelId/avatar', channel.avatar);
 channelRouter.patch('/:channelId/banner', channel.banner);
 channelRouter.post('/:channelId/subscribe' , channel.subscribe)
-channelRouter.post('/:channelId/unsubscribe' , channel.unsubscriber)
+channelRouter.delete('/:channelId/unsubscribe' , channel.unsubscriber)
+channelRouter.get('/:channelId/subscribers' , channel.unsubscriber)
 
 
 export { channelRouter };
