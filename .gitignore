@@ -20,3 +20,5 @@ platform-subscription-service/node_modules
 platform-subscription-service/.env
 billing-service/node_modules
 billing-service/.env
+refactor/channel-domain/node_modules
+refactor/channel-domain/.env
