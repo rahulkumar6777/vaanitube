@@ -50,9 +50,7 @@ const createChannel = async (req, res) => {
         await client.hSet(
             `channel:exist:${newChannel._id.toString()}`,
             {
-                ownerId: newChannel.ownerId,
-                status: newChannel.status,
-                name: newChannel.name
+                ownerId: newChannel.ownerId.toString(),
             }
         );
 
