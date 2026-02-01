@@ -7,9 +7,31 @@ export default (target) =>
         on: {
             proxyReq: (proxyReq, req) => {
                 proxyReq.setHeader("x-internal-secret", process.env.INTERNAL_SECRET);
+                proxyReq.setHeader("x-trace-id", req.traceId);
+                proxyReq.startTime = Date.now();
                 if (req.user) {
                     proxyReq.setHeader("x-user-context", JSON.stringify(req.user));
                 }
+            },
+
+            onProxyRes(proxyRes, req, res) {
+                const latency = Date.now() - proxyRes.req.startTime;
+
+                log({
+                    traceId: req.traceId,
+                    service: service.name,
+                    method: req.method,
+                    path: req.originalUrl,
+                    statusCode: proxyRes.statusCode,
+                    latency: `${latency}ms`
+                });
+            },
+            onError(err, req) {
+                log({
+                    traceId: req.traceId,
+                    service: service.name,
+                    error: err.message
+                });
             }
         }
     });
