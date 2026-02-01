@@ -5,6 +5,14 @@ import express from 'express'
 const app = express();
 
 
+// redis connect
+await connectRedis()
+
+
+import { traceMiddleware } from './src/middlewares/trace.middleware.js';
+app.use(traceMiddleware)
+
+
 //cors
 import cors from 'cors'
 import { corsOption } from './src/middlewares/cors.middleware.js';
@@ -16,6 +24,7 @@ import authRoutes from './src/routes/auth.routes.js'
 import refreshRoutes from './src/routes/auth.routes.js'
 import userRoutes from "./src/routes/user.routes.js"
 import channelRoutes from "./src/routes/channel.routes.js"
+import { connectRedis } from './src/configs/redis.js';
 
 
 // routes
