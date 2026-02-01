@@ -16,7 +16,7 @@ const channelSubscribe = async (req, res) => {
         }
         if (response.ownerId === user._id) {
             return res.status(400).json({
-                error: "invalid channelId or you can't subscriber own channel"
+                error: "you can't subscriber own channel"
             })
         }
 

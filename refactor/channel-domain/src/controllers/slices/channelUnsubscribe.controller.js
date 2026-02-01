@@ -1,29 +1,18 @@
 import { Model } from "../../models/index.js";
 import { client } from "../configs/redis.js";
-
+import { channelValidate } from '../../utils/channelValidate.js';
 
 const channelUnsubscribe = async (req, res) => {
     try {
         const user = req.user;
         const channelId = req.params.channelId;
 
-        // firct check on chache if not exist then check on fall on db
-        const validateChannel = await client.hGetAll(`channel:${channelId}`);
-
-        if (!validateChannel) {
-            const response = await Model.channel.findById(channelId);
-            if (!response || response.ownerId === user._id) {
-                return res.status(404).json({
-                    error: "invalid channelId or you can't subscriber own channel"
-                })
-            }
-
-            await client.hSet(
-                `channel:exist:${newChannel._id.toString()}`,
-                {
-                    ownerId: newChannel.ownerId.toString(),
-                }
-            );
+        // here i validate channel id 
+        const response = await channelValidate(channelId);
+        if (!response) {
+            return res.status(404).json({
+                error: "invalid channelId"
+            })
         }
 
         // check user subscriberd or not in redis
