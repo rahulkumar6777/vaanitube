@@ -22,7 +22,6 @@ import authRoutes from './src/routes/auth.routes.js'
 import refreshRoutes from './src/routes/auth.routes.js'
 import userRoutes from "./src/routes/user.routes.js"
 import channelRoutes from "./src/routes/channel.routes.js"
-import { loggerMiddleware } from './src/middlewares/logger.middleware.js';
 
 
 // routes
