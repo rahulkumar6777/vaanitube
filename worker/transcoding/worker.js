@@ -1,5 +1,13 @@
 import fs from 'fs';
-import { S3Client } from '@aws-sdk/client-s3';
+import path from 'path';
+import axios from 'axios';
+import { spawn } from 'child_process';
+import { configDotenv } from 'dotenv';
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Worker, Job } from 'bullmq';
+import { Redis } from 'ioredis';
+import { getVideoDurationInSeconds } from 'get-video-duration'
+import sharp from 'sharp';
 
 // dotenv connection
 import dotenv from 'dotenv'
@@ -56,4 +64,30 @@ const s3client = () => {
         },
         forcePathStyle: true
     });
+};
+
+
+// Download video
+const downloadVideo = async (vidoeUrl) => {
+    try {
+        const response = await axios.get(
+            `${vidoeUrl}`,
+            { responseType: 'stream' }
+        );
+
+        const extension = path.extname(new URL(vidoeUrl).pathname).toLowerCase();
+        inputFile = `${uploadsDir}/${filename}${extension}`;
+        const writer = fs.createWriteStream(inputFile);
+        response.data.pipe(writer);
+
+        await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+
+        console.log(' Video downloaded successfully');
+    } catch (err) {
+        console.error(' Error downloading video:', err.message);
+        process.exit(0);
+    }
 };
