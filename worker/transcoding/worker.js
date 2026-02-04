@@ -314,3 +314,15 @@ const worker = new Worker("vaanitube-video-encoding", async (job) => {
     console.log(` Encoding completed for video ID: ${videoId}`);
 
 }, { connection })
+
+
+worker.on('completed', async (job) => {
+
+    await videoProcessingCompletedQueue.add('vaanitube-video-processing-completed', { message: 'Video processing completed successfully.', videoId: job.data.videoId });
+    console.log(` Job ${job.id} has been completed`);
+
+});
+
+worker.on('failed', (job, err) => {
+    console.error(` Job ${job.id} has failed with error: ${err.message}`);
+});
