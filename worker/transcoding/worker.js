@@ -2,9 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
 import { spawn } from 'child_process';
-import { configDotenv } from 'dotenv';
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { Worker, Job } from 'bullmq';
+import { Worker } from 'bullmq';
 import { Redis } from 'ioredis';
 import { getVideoDurationInSeconds } from 'get-video-duration'
 import sharp from 'sharp';
