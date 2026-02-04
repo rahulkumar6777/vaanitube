@@ -174,3 +174,58 @@ async function getVideoHeight(inputFile) {
         });
     });
 }
+
+
+export const convertToHLS = async (inputFile, outputDir) => {
+    const videoHeight = await getVideoHeight(inputFile);
+    console.log(`🎥 Input resolution: ${videoHeight}p`);
+
+
+    const selectedResolutions = resolutions.filter(r => r.height <= videoHeight);
+
+
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    const masterPlaylistPath = path.join(outputDir, "master.m3u8");
+    let masterPlaylist = "#EXTM3U\n";
+
+    for (const r of selectedResolutions) {
+        const variantDir = path.join(outputDir, r.name);
+        fs.mkdirSync(variantDir, { recursive: true });
+
+        const playlistPath = path.join(variantDir, "playlist.m3u8");
+        const segmentPattern = path.join(variantDir, "segment%03d.ts");
+
+        const args = [
+            "-i", inputFile,
+            "-vf", `scale=-2:${r.height}`,
+            "-c:v", "libx264",
+            "-b:v", r.videoBitrate,
+            "-c:a", "aac",
+            "-b:a", r.audioBitrate,
+            "-hls_time", "2",
+            "-hls_playlist_type", "vod",
+            "-hls_segment_filename", segmentPattern,
+            "-start_number", "0",
+            playlistPath
+        ];
+
+        await new Promise((resolve, reject) => {
+            const ffmpeg = spawn(ffmpegPath, args);
+            ffmpeg.stderr.on("data", (data) => console.log(`[${r.name}]`, data.toString()));
+            ffmpeg.on("close", (code) => {
+                if (code === 0) {
+                    console.log(` ${r.name} conversion complete`);
+                    resolve();
+                } else reject(new Error(`FFmpeg failed for ${r.name}`));
+            });
+        });
+
+
+        masterPlaylist += `#EXT-X-STREAM-INF:BANDWIDTH=${parseInt(r.videoBitrate) * 8},RESOLUTION=1920x${r.height}\n`;
+        masterPlaylist += `${r.name}/playlist.m3u8\n`;
+    }
+
+    fs.writeFileSync(masterPlaylistPath, masterPlaylist);
+    console.log(" Master playlist generated at:", masterPlaylistPath);
+};
