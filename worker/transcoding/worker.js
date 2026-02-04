@@ -128,3 +128,28 @@ const makethumbnail = async (inputFile) => {
 }
 
 
+const resizeThumbnailAndUpload = async (videoId) => {
+    for (const s of thumbnailSizes) {
+        await sharp(thumbnailoutputDir)
+            .resize(s.width, s.height, { fit: "cover" })
+            .jpeg({ quality: 98 })
+            .toFile(resizedThumbnailPath);
+
+        const stream = fs.createReadStream(resizedThumbnailPath);
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.BUCKET_NAME,
+            Key: `${videoId}/thumbnails/${s.name}.jpg`,
+            Body: stream,
+            ContentType: "image/jpeg",
+        });
+
+        const client = s3client()
+        try {
+            await client.send(command);
+            console.log(` Uploaded ${s.name} thumbnail`);
+        } catch (err) {
+            console.error(` Failed ${s.name}:`, err.message);
+        }
+    }
+};
