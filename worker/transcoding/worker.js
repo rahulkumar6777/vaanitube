@@ -229,3 +229,62 @@ export const convertToHLS = async (inputFile, outputDir) => {
     fs.writeFileSync(masterPlaylistPath, masterPlaylist);
     console.log(" Master playlist generated at:", masterPlaylistPath);
 };
+
+
+const uploadFiles = async (videoid) => {
+    const client = s3client()
+    const files = fs.readdirSync(outputDir);
+    for (const file of files) {
+        const filePath = path.join(outputDir, file);
+
+        if (fs.lstatSync(path.join(outputDir, file)).isDirectory()) {
+            const dirFiles = fs.readdirSync(path.join(outputDir, file));
+            for (const dirFile of dirFiles) {
+                const dividerfilePath = path.join(filePath, dirFile,);
+                const fileStream = fs.createReadStream(dividerfilePath);
+
+                const filename = path.parse(dirFile).name;
+                const fileExtension = path.parse(dirFile).ext.substring(1);
+                const contentType = fileExtension === 'ts' ? 'video/MP2T' : 'application/x-mpegURL';
+
+                const command = new PutObjectCommand({
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: `${videoid}/video/${path.parse(file).name}/${filename}.${fileExtension}`,
+                    Body: fileStream,
+                    ContentType: contentType,
+                });
+
+
+                try {
+                    await client.send(command);
+                    console.log(` Uploaded ${dirFile} to R2`);
+                } catch (err) {
+                    console.error(` Failed to upload ${dirFile}:`, err.message);
+                }
+            }
+        }
+        else {
+            const fileStream = fs.createReadStream(filePath);
+
+            const filename = path.parse(file).name;
+            const fileExtension = path.parse(file).ext.substring(1);
+            const contentType = fileExtension === 'ts' ? 'video/MP2T' : 'application/x-mpegURL';
+
+            const command = new PutObjectCommand({
+                Bucket: process.env.BUCKET_NAME,
+                Key: `${videoid}/video/${filename}.${fileExtension}`,
+                Body: fileStream,
+                ContentType: contentType,
+            });
+
+
+
+            try {
+                await client.send(command);
+                console.log(`Uploaded ${file} to R2`);
+            } catch (err) {
+                console.error(` Failed to upload ${file}:`, err.message);
+            }
+        }
+    }
+};
