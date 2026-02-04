@@ -153,3 +153,24 @@ const resizeThumbnailAndUpload = async (videoId) => {
         }
     }
 };
+
+
+async function getVideoHeight(inputFile) {
+    return new Promise((resolve, reject) => {
+        const args = [
+            "-v", "error",
+            "-select_streams", "v:0",
+            "-show_entries", "stream=height",
+            "-of", "csv=p=0",
+            inputFile
+        ];
+        const ffprobe = spawn(ffprobePath, args);
+        let output = "";
+
+        ffprobe.stdout.on("data", (data) => (output += data.toString()));
+        ffprobe.on("close", (code) => {
+            if (code === 0) resolve(parseInt(output.trim(), 10));
+            else reject(new Error("Failed to get video height"));
+        });
+    });
+}
