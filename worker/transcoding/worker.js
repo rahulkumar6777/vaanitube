@@ -288,3 +288,29 @@ const uploadFiles = async (videoid) => {
         }
     }
 };
+
+
+const worker = new Worker("vaanitube-video-encoding", async (job) => {
+    const { videoUrl, videoId } = job.data;
+
+    console.log(` Starting encoding for video ID: ${videoId}`);
+
+    // Generate a unique filename
+    const filename = Math.random().toString(36).substring(2, 15);
+    let inputFile = `${uploadsDir}/${filename}`;
+
+    await downloadVideo(videoUrl);
+    await makethumbnail(inputFile);
+    await convertToHLS(inputFile, outputDir);
+    await resizeThumbnailAndUpload(videoId);
+    await uploadFiles(videoId);
+
+
+    await fs.promises.unlink(inputFile);
+    console.log(' Temporary files cleaned up');
+
+    await fs.promises.rmdir(outputDir, { recursive: true });
+
+    console.log(` Encoding completed for video ID: ${videoId}`);
+
+}, { connection })
