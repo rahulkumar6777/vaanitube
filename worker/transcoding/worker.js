@@ -91,3 +91,40 @@ const downloadVideo = async (vidoeUrl) => {
         process.exit(0);
     }
 };
+
+const makethumbnail = async (inputFile) => {
+
+    try {
+        const duration = await getVideoDurationInSeconds(inputFile);
+        const randomSecond = Math.floor(Math.random() * duration);
+
+
+        const timeStamp = new Date(randomSecond * 1000).toISOString().substring(11, 19);
+        const thumbnailPath = path.join(thumbnailoutputDir, `${filename}.jpg`)
+
+        const args = [
+            "-ss", timeStamp,
+            "-i", inputFile,
+            "-vframes", "1",
+            "-q:v", "2",
+            thumbnailPath,
+        ];
+        const ffmpeg = spawn(ffmpegPath, args);
+
+        ffmpeg.on('close', (code) => {
+            if (code === 0) {
+                console.log(` Thumbnail generated at ${timeStamp}`);
+            } else {
+                console.error(` FFmpeg exited with code ${code}`);
+            }
+        });
+
+        ffmpeg.stderr.on('data', (data) => {
+            console.error(`FFmpeg error: ${data}`);
+        });
+    } catch (error) {
+        return error;
+    }
+}
+
+
