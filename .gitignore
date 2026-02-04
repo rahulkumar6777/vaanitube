@@ -24,3 +24,5 @@ archived/channel-service/node_modules
 archived/channel-service/.env
 archived/channel-subscriber-service/node_modules
 archived/channel-subscriber-service/.env
+subscription-manager-service/node_modules
+subscription-manager-service/.env
