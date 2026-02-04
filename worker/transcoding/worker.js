@@ -23,6 +23,9 @@ const connection = new Redis({
 });
 
 
+const videoProcessingCompletedQueue = new Queue('vaanitube-video-processing-completed', { connection });
+
+
 // Paths and filenames
 const ffmpegPath = '/usr/bin/ffmpeg';
 const outputDir = 'hls_output';
