@@ -28,3 +28,5 @@ subscription-manager-service/node_modules
 subscription-manager-service/.env
 worker/transcoding/node_modules
 worker/transcoding/.env
+stream-service/node_modules
+stream-service/.env
