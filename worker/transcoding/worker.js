@@ -1,0 +1,334 @@
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios';
+import { spawn } from 'child_process';
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Worker  , Queue} from 'bullmq';
+import { getVideoDurationInSeconds } from 'get-video-duration'
+import sharp from 'sharp';
+
+// dotenv connection
+import dotenv from 'dotenv'
+dotenv.config()
+
+
+//global variable
+let filename;
+let inputFile;
+
+// redis connection
+import { Redis } from 'ioredis';
+const connection = new Redis({
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT),
+    maxRetriesPerRequest: null,
+});
+
+
+const videoProcessingCompletedQueue = new Queue('vaanitube-video-processing-completed', { connection });
+
+
+// Paths and filenames
+const ffmpegPath = '/usr/bin/ffmpeg';
+const outputDir = 'hls_output';
+const thumbnailoutputDir = 'thumbnailOutput';
+const uploadsDir = 'uploads';
+const ffprobePath = "/usr/bin/ffprobe";
+const resizedThumbnailPath = 'resizedthumbnail'
+
+
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+if (!fs.existsSync(thumbnailoutputDir)) fs.mkdirSync(thumbnailoutputDir, { recursive: true });
+if (!fs.existsSync(resizedThumbnailPath)) fs.mkdirSync(resizedThumbnailPath, { recursive: true });
+
+const resolutions = [
+    { name: "144p", height: 144, videoBitrate: "150k", audioBitrate: "64k" },
+    { name: "240p", height: 240, videoBitrate: "300k", audioBitrate: "64k" },
+    { name: "360p", height: 360, videoBitrate: "800k", audioBitrate: "96k" },
+    { name: "480p", height: 480, videoBitrate: "1200k", audioBitrate: "128k" },
+    { name: "720p", height: 720, videoBitrate: "2500k", audioBitrate: "128k" },
+    { name: "1080p", height: 1080, videoBitrate: "5000k", audioBitrate: "192k" }
+];
+
+
+const thumbnailSizes = [
+    { name: "480p", width: 480, height: 270 },
+    { name: "720p", width: 720, height: 405 },
+    { name: "1080p", width: 1280, height: 720 },
+];
+
+
+const s3client = () => {
+    return new S3Client({
+        endpoint: process.env.S3_ENDPOINT,
+        region: 'auto',
+        credentials: {
+            accessKeyId: process.env.ACCESS_KEY_ID,
+            secretAccessKey: process.env.SECRET_ACCESS_KEY
+        },
+        forcePathStyle: true
+    });
+};
+
+
+// Download video
+const downloadVideo = async (vidoeUrl) => {
+    try {
+        const response = await axios.get(
+            `${vidoeUrl}`,
+            { responseType: 'stream' }
+        );
+
+        const extension = path.extname(new URL(vidoeUrl).pathname).toLowerCase();
+        inputFile = `${uploadsDir}/${filename}${extension}`;
+        const writer = fs.createWriteStream(inputFile);
+        response.data.pipe(writer);
+
+        await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+
+        console.log(' Video downloaded successfully');
+    } catch (err) {
+        console.error(' Error downloading video:', err.message);
+        process.exit(0);
+    }
+};
+
+const makethumbnail = async (inputFile) => {
+    const duration = await getVideoDurationInSeconds(inputFile);
+    const randomSecond = Math.floor(Math.random() * duration);
+    const timeStamp = new Date(randomSecond * 1000).toISOString().substring(11, 19);
+
+    const thumbnailPath = path.join(thumbnailoutputDir, `${filename}.jpg`);
+
+    const args = [
+        "-ss", timeStamp,
+        "-i", inputFile,
+        "-vframes", "1",
+        "-q:v", "2",
+        thumbnailPath,
+    ];
+
+    await new Promise((resolve, reject) => {
+        const ffmpeg = spawn(ffmpegPath, args);
+
+        ffmpeg.on("close", (code) => {
+            if (code === 0) {
+                console.log(`Thumbnail generated`);
+                resolve();
+            } else {
+                reject(new Error("Thumbnail generation failed"));
+            }
+        });
+
+        ffmpeg.stderr.on("data", (data) => console.log(data.toString()));
+    });
+};
+
+
+
+const resizeThumbnailAndUpload = async (videoId) => {
+    const originalThumbnail = path.join(thumbnailoutputDir, `${filename}.jpg`);
+
+    for (const s of thumbnailSizes) {
+        const resizedFile = path.join(resizedThumbnailPath, `${s.name}.jpg`);
+
+        await sharp(originalThumbnail)
+            .resize(s.width, s.height, { fit: "cover" })
+            .jpeg({ quality: 90 })
+            .toFile(resizedFile);
+
+        const stream = fs.createReadStream(resizedFile);
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.BUCKET_NAME,
+            Key: `${videoId}/thumbnails/${s.name}.jpg`,
+            Body: stream,
+            ContentType: "image/jpeg",
+        });
+
+        try {
+            await s3client().send(command);
+            console.log(`Uploaded ${s.name} thumbnail`);
+        } catch (err) {
+            console.error(`Failed ${s.name}:`, err.message);
+        }
+    }
+};
+
+
+
+async function getVideoHeight(inputFile) {
+    return new Promise((resolve, reject) => {
+        const args = [
+            "-v", "error",
+            "-select_streams", "v:0",
+            "-show_entries", "stream=height",
+            "-of", "csv=p=0",
+            inputFile
+        ];
+        const ffprobe = spawn(ffprobePath, args);
+        let output = "";
+
+        ffprobe.stdout.on("data", (data) => (output += data.toString()));
+        ffprobe.on("close", (code) => {
+            if (code === 0) resolve(parseInt(output.trim(), 10));
+            else reject(new Error("Failed to get video height"));
+        });
+    });
+}
+
+
+export const convertToHLS = async (inputFile, outputDir) => {
+    const videoHeight = await getVideoHeight(inputFile);
+    console.log(`🎥 Input resolution: ${videoHeight}p`);
+
+
+    const selectedResolutions = resolutions.filter(r => r.height <= videoHeight);
+
+
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    const masterPlaylistPath = path.join(outputDir, "master.m3u8");
+    let masterPlaylist = "#EXTM3U\n";
+
+    for (const r of selectedResolutions) {
+        const variantDir = path.join(outputDir, r.name);
+        fs.mkdirSync(variantDir, { recursive: true });
+
+        const playlistPath = path.join(variantDir, "playlist.m3u8");
+        const segmentPattern = path.join(variantDir, "segment%03d.ts");
+
+        const args = [
+            "-i", inputFile,
+            "-vf", `scale=-2:${r.height}`,
+            "-c:v", "libx264",
+            "-b:v", r.videoBitrate,
+            "-c:a", "aac",
+            "-b:a", r.audioBitrate,
+            "-hls_time", "2",
+            "-hls_playlist_type", "vod",
+            "-hls_segment_filename", segmentPattern,
+            "-start_number", "0",
+            playlistPath
+        ];
+
+        await new Promise((resolve, reject) => {
+            const ffmpeg = spawn(ffmpegPath, args);
+            ffmpeg.stderr.on("data", (data) => console.log(`[${r.name}]`, data.toString()));
+            ffmpeg.on("close", (code) => {
+                if (code === 0) {
+                    console.log(` ${r.name} conversion complete`);
+                    resolve();
+                } else reject(new Error(`FFmpeg failed for ${r.name}`));
+            });
+        });
+
+
+        masterPlaylist += `#EXT-X-STREAM-INF:BANDWIDTH=${parseInt(r.videoBitrate) * 8},RESOLUTION=1920x${r.height}\n`;
+        masterPlaylist += `${r.name}/playlist.m3u8\n`;
+    }
+
+    fs.writeFileSync(masterPlaylistPath, masterPlaylist);
+    console.log(" Master playlist generated at:", masterPlaylistPath);
+};
+
+
+const uploadFiles = async (videoid) => {
+    const client = s3client()
+    const files = fs.readdirSync(outputDir);
+    for (const file of files) {
+        const filePath = path.join(outputDir, file);
+
+        if (fs.lstatSync(path.join(outputDir, file)).isDirectory()) {
+            const dirFiles = fs.readdirSync(path.join(outputDir, file));
+            for (const dirFile of dirFiles) {
+                const dividerfilePath = path.join(filePath, dirFile,);
+                const fileStream = fs.createReadStream(dividerfilePath);
+
+                const filename = path.parse(dirFile).name;
+                const fileExtension = path.parse(dirFile).ext.substring(1);
+                const contentType = fileExtension === 'ts' ? 'video/MP2T' : 'application/x-mpegURL';
+
+                const command = new PutObjectCommand({
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: `${videoid}/video/${path.parse(file).name}/${filename}.${fileExtension}`,
+                    Body: fileStream,
+                    ContentType: contentType,
+                });
+
+
+                try {
+                    await client.send(command);
+                    console.log(` Uploaded ${dirFile} to R2`);
+                } catch (err) {
+                    console.error(` Failed to upload ${dirFile}:`, err.message);
+                }
+            }
+        }
+        else {
+            const fileStream = fs.createReadStream(filePath);
+
+            const filename = path.parse(file).name;
+            const fileExtension = path.parse(file).ext.substring(1);
+            const contentType = fileExtension === 'ts' ? 'video/MP2T' : 'application/x-mpegURL';
+
+            const command = new PutObjectCommand({
+                Bucket: process.env.BUCKET_NAME,
+                Key: `${videoid}/video/${filename}.${fileExtension}`,
+                Body: fileStream,
+                ContentType: contentType,
+            });
+
+
+
+            try {
+                await client.send(command);
+                console.log(`Uploaded ${file} to R2`);
+            } catch (err) {
+                console.error(` Failed to upload ${file}:`, err.message);
+            }
+        }
+    }
+};
+
+
+const worker = new Worker("vaanitube-video-encoding", async (job) => {
+    const { videoUrl, videoId } = job.data;
+
+    console.log(` Starting encoding for video ID: ${videoId}`);
+
+    // Generate a unique filename
+    filename = Math.random().toString(36).substring(2, 15);
+    inputFile = `${uploadsDir}/${filename}`;
+
+    await downloadVideo(videoUrl);
+    await makethumbnail(inputFile);
+    await convertToHLS(inputFile, outputDir);
+    await resizeThumbnailAndUpload(videoId);
+    await uploadFiles(videoId);
+
+
+    await fs.promises.unlink(inputFile);
+    console.log(' Temporary files cleaned up');
+
+    await fs.promises.rmdir(outputDir, { recursive: true });
+
+    console.log(` Encoding completed for video ID: ${videoId}`);
+
+}, { connection })
+
+
+worker.on('completed', async (job) => {
+
+    await videoProcessingCompletedQueue.add('vaanitube-video-processing-completed', { message: 'Video processing completed successfully.', videoId: job.data.videoId });
+    console.log(` Job ${job.id} has been completed`);
+
+});
+
+worker.on('failed', (job, err) => {
+    console.error(` Job ${job.id} has failed with error: ${err.message}`);
+});
