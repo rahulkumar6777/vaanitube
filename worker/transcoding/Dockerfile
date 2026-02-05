@@ -15,7 +15,7 @@ COPY 'package-lock.json' .
 
 RUN npm ci
 
-COPY 'index.js' .
+COPY 'worker.js' .
 
 
-CMD ["node", "index.js"]
+CMD ["node", "worker.js"]
