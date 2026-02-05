@@ -13,6 +13,6 @@ channelRouter.delete('/:channelId/unsubscribe' , channel.unsubscriber)
 channelRouter.get('/:channelId/subscribers' , channel.unsubscriber)
 channelRouter.get('/:channelId/subscribed' , channel.subscribed)
 channelRouter.get('/me' , channel.user.subscribedChannels)
-
+channelRouter.get('/:channelId/member/validate' , channel.ChannelMemberValidation)
 
 export { channelRouter };
