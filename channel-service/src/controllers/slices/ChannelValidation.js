@@ -7,7 +7,7 @@ const channelValidation = async (req, res) => {
             return res.status(400).json({ message: "Invalid channelId parameter" });
         }
 
-        const checkChannel = await Model.Channel.findById(channelId);
+        const checkChannel = await Model.channel.findById(channelId);
         if (!checkChannel) {
             return res.status(404).json({
                 message: "channel not found"
