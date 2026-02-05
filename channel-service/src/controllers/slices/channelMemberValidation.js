@@ -1,3 +1,4 @@
+import { client } from "../../configs/redis.js";
 import { Model } from "../../models/index.js";
 
 const ChannelMemberValidation = async (req, res) => {
@@ -10,9 +11,16 @@ const ChannelMemberValidation = async (req, res) => {
         if (!member) {
             return res.status(404).json({
                 message: "not channel member",
-                success: fasle
+                success: false
             })
         };
+
+        if (member) {
+            const sismember = await client.sIsMember(`channel:${channelId}:members`, userId);
+            if (!sismember) {
+                await client.sAdd(`channel:${channelId}:members`, user._id);
+            }
+        }
 
         return res.status(200).json({
             message: "you are member",
@@ -20,7 +28,8 @@ const ChannelMemberValidation = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            error: "Internal Server Error"
+            error: "Internal Server Error",
+            success: false
         })
     }
 }
