@@ -3,8 +3,7 @@ import path from 'path';
 import axios from 'axios';
 import { spawn } from 'child_process';
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { Worker } from 'bullmq';
-import { Redis } from 'ioredis';
+import { Worker  , Queue} from 'bullmq';
 import { getVideoDurationInSeconds } from 'get-video-duration'
 import sharp from 'sharp';
 
@@ -12,6 +11,10 @@ import sharp from 'sharp';
 import dotenv from 'dotenv'
 dotenv.config()
 
+
+//global variable
+let filename;
+let inputFile;
 
 // redis connection
 import { Redis } from 'ioredis';
@@ -95,49 +98,50 @@ const downloadVideo = async (vidoeUrl) => {
 };
 
 const makethumbnail = async (inputFile) => {
+    const duration = await getVideoDurationInSeconds(inputFile);
+    const randomSecond = Math.floor(Math.random() * duration);
+    const timeStamp = new Date(randomSecond * 1000).toISOString().substring(11, 19);
 
-    try {
-        const duration = await getVideoDurationInSeconds(inputFile);
-        const randomSecond = Math.floor(Math.random() * duration);
+    const thumbnailPath = path.join(thumbnailoutputDir, `${filename}.jpg`);
 
+    const args = [
+        "-ss", timeStamp,
+        "-i", inputFile,
+        "-vframes", "1",
+        "-q:v", "2",
+        thumbnailPath,
+    ];
 
-        const timeStamp = new Date(randomSecond * 1000).toISOString().substring(11, 19);
-        const thumbnailPath = path.join(thumbnailoutputDir, `${filename}.jpg`)
-
-        const args = [
-            "-ss", timeStamp,
-            "-i", inputFile,
-            "-vframes", "1",
-            "-q:v", "2",
-            thumbnailPath,
-        ];
+    await new Promise((resolve, reject) => {
         const ffmpeg = spawn(ffmpegPath, args);
 
-        ffmpeg.on('close', (code) => {
+        ffmpeg.on("close", (code) => {
             if (code === 0) {
-                console.log(` Thumbnail generated at ${timeStamp}`);
+                console.log(`Thumbnail generated`);
+                resolve();
             } else {
-                console.error(` FFmpeg exited with code ${code}`);
+                reject(new Error("Thumbnail generation failed"));
             }
         });
 
-        ffmpeg.stderr.on('data', (data) => {
-            console.error(`FFmpeg error: ${data}`);
-        });
-    } catch (error) {
-        return error;
-    }
-}
+        ffmpeg.stderr.on("data", (data) => console.log(data.toString()));
+    });
+};
+
 
 
 const resizeThumbnailAndUpload = async (videoId) => {
-    for (const s of thumbnailSizes) {
-        await sharp(thumbnailoutputDir)
-            .resize(s.width, s.height, { fit: "cover" })
-            .jpeg({ quality: 98 })
-            .toFile(resizedThumbnailPath);
+    const originalThumbnail = path.join(thumbnailoutputDir, `${filename}.jpg`);
 
-        const stream = fs.createReadStream(resizedThumbnailPath);
+    for (const s of thumbnailSizes) {
+        const resizedFile = path.join(resizedThumbnailPath, `${s.name}.jpg`);
+
+        await sharp(originalThumbnail)
+            .resize(s.width, s.height, { fit: "cover" })
+            .jpeg({ quality: 90 })
+            .toFile(resizedFile);
+
+        const stream = fs.createReadStream(resizedFile);
 
         const command = new PutObjectCommand({
             Bucket: process.env.BUCKET_NAME,
@@ -146,15 +150,15 @@ const resizeThumbnailAndUpload = async (videoId) => {
             ContentType: "image/jpeg",
         });
 
-        const client = s3client()
         try {
-            await client.send(command);
-            console.log(` Uploaded ${s.name} thumbnail`);
+            await s3client().send(command);
+            console.log(`Uploaded ${s.name} thumbnail`);
         } catch (err) {
-            console.error(` Failed ${s.name}:`, err.message);
+            console.error(`Failed ${s.name}:`, err.message);
         }
     }
 };
+
 
 
 async function getVideoHeight(inputFile) {
@@ -298,8 +302,8 @@ const worker = new Worker("vaanitube-video-encoding", async (job) => {
     console.log(` Starting encoding for video ID: ${videoId}`);
 
     // Generate a unique filename
-    const filename = Math.random().toString(36).substring(2, 15);
-    let inputFile = `${uploadsDir}/${filename}`;
+    filename = Math.random().toString(36).substring(2, 15);
+    inputFile = `${uploadsDir}/${filename}`;
 
     await downloadVideo(videoUrl);
     await makethumbnail(inputFile);
