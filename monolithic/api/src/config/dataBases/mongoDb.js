@@ -1,6 +1,6 @@
 import mongoose, { connect } from "mongoose";
 import { envs } from "../../lib/env.js";
-import { print } from '../../utils/logger.js'
+import { print } from '../../utils/logger/logger.js'
 
 const connectToMongoDB = async () => {
     await mongoose.connect(`${envs.MONGODB_URI}`, {
