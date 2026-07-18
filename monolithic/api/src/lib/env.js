@@ -6,11 +6,11 @@ const requiredEnvs = [
     "PORT", "NODE_ENV",
     "MONGODB_URI", "REDIS_HOST", "REDIS_PORT",
     "MINIO_ENDPOINT", "MINIO_ACCESS_KEY", "MINIO_SECRET_KEY", "MINIO_BUCKET_NAME",
-    "DEPLOYHUB_API_KEY", "DEPLOYHUB_API_URL", "DEPLOYHUB_PROJECT_ID", "DEPLOYHUB_2_API_KEY",
+    "DEVLOAD_API_KEY", "DEVLOAD_PROJECTID", "DEVLOAD_API_URL", "DEVLOAD_2_API_KEY",
 ]
 
 for (const env of requiredEnvs) {
-    if (!process[env]) {
+    if (!process.env[env]) {
         throw new Error(`Missing required environment variable: ${env}`);
     }
 }
