@@ -1,8 +1,18 @@
+import { uptime } from "process";
 import { connectToMongoDB, disconnectFromMongoDB } from "./config/dataBases/mongoDb.js";
 import { connectRedis } from "./config/redis/redis.js";
 import app from "./index.js";
 import { envs } from "./lib/env.js";
 
+
+//health route
+app.get('/health', (_req, res) => {
+    return res.status(200).json({
+        success: true,
+        uptime,
+        time: new Date().toLocaleTimeString()
+    })
+})
 
 // routers
 import router from "./router/index.js";
