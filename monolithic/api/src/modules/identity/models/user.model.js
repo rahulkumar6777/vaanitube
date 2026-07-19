@@ -27,7 +27,9 @@ const userschema = new mongoose.Schema({
     },
     phoneNo: {
         type: String,
-        required: true
+    },
+    age: {
+        type: Number,
     },
     verificationType: {
         type: String,
@@ -49,10 +51,10 @@ const userschema = new mongoose.Schema({
         type: String,
         required: true
     },
-    adId: {
-        type: String,
-        required: true
-    },
+    // adId: {
+    //     type: String,
+    //     required: true
+    // },
     role: {
         type: String,
         required: true,
@@ -60,7 +62,6 @@ const userschema = new mongoose.Schema({
     },
     profilepic: {
         type: String,
-        default: "https://api-devload.cloudcoderhub.in/public/695f91881242b7ee566ffeea/17693668170573e8c5dea066b2d0f26f74a44.jpg"
     },
     profilefileid: {
         type: String,
@@ -73,11 +74,22 @@ const userschema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["active", "inactive", "blocked"],
-        default: "active"
+        enum: ["pending", "inactive", "active", "blocked", "deleted"],
+        default: "pending"
     },
+    registrationExpiresAt: {
+        type: Date
+    }
 }, { timestamps: true });
 
+
+userschema.index(
+    { registrationExpiresAt: 1 },
+    {
+        expireAfterSeconds: 0,
+        partialFilterExpression: { status: 'pending' },
+    }
+);
 
 userschema.pre("save", async function () {
     if (this.isModified('password')) {
