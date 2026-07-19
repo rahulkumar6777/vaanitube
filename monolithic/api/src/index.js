@@ -5,10 +5,13 @@ import express from "express";
 const app = express();
 
 
+// Enable trust proxy
+app.set('trust proxy', true);
+
+
 // middleware to parse JSON request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 
 // important security middleware

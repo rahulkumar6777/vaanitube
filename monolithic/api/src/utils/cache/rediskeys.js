@@ -1,3 +1,3 @@
 export const redisCachingKey = {
-    UserOtp: (email) => `vaanitube:user:${email}`
+    UserOtp: (email) => `vaanitube:users:otp:${email}`
 }
