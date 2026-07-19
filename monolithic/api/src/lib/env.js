@@ -4,7 +4,7 @@ dotenv.config();
 
 const requiredEnvs = [
     "PORT", "NODE_ENV",
-    "MONGODB_URI", "REDIS_HOST", "REDIS_PORT",
+    "MONGODB_URI", "REDIS_HOST", "REDIS_PORT", "REDIS_URL",
     "MINIO_ENDPOINT", "MINIO_ACCESS_KEY", "MINIO_SECRET_KEY", "MINIO_BUCKET_NAME",
     "DEVLOAD_API_KEY", "DEVLOAD_PROJECTID", "DEVLOAD_API_URL", "DEVLOAD_2_API_KEY",
     "EMAIL_HOST", "EMAIL_PORT", "EMAIL_USER", "EMAIL_PASS",
@@ -36,5 +36,6 @@ export const envs = {
     EMAIL_PORT: process.env.EMAIL_PORT,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
+    REDIS_URL: process.env.REDIS_URL,
     IPINFO_TOKEN: process.env.IPINFO_TOKEN
 }
