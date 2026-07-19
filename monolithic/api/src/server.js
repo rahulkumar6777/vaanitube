@@ -9,7 +9,6 @@ import { envs } from "./lib/env.js";
 app.get('/health', (_req, res) => {
     return res.status(200).json({
         success: true,
-        uptime,
         time: new Date().toLocaleTimeString()
     })
 })
