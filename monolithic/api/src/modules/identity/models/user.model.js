@@ -32,6 +32,14 @@ const userschema = new mongoose.Schema({
         required: true,
         enum: ["pan", "aadhaar", "passport", "voterid", "drivinglicense"]
     },
+    verificationValue: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    verificationPhotos: {
+        type: [String]
+    },
     address: {
         type: String,
     },
@@ -51,11 +59,6 @@ const userschema = new mongoose.Schema({
     //     type: String,
     //     required: true
     // },
-    role: {
-        type: String,
-        required: true,
-        enum: ["creator", "viewer"]
-    },
     profilepic: {
         type: String,
     },
