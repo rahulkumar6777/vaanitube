@@ -68,3 +68,41 @@ export const initRegisterViewer = async (req) => {
 
     return;
 }
+
+export const verifyRegisterViewerService = async (req) => {
+    const redis = getRedis();
+
+    const { otp, email } = req.body;
+
+    const redisKey = redisCachingKey.UserOtp(email);
+    const cachedOtp = await redis.hgetall(redisKey);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw new AppError('Registration expired. Please register again', 400);
+    }
+
+    if (user.status !== 'pending') {
+        throw new AppError('Registration cannot be verified for this account', 403);
+    }
+
+    if (user.registrationExpiresAt && user.registrationExpiresAt <= new Date()) {
+        await User.deleteOne({ _id: user._id, status: "pending" });
+        throw new AppError('Registration expired. Please register again', 400);
+    }
+
+    if (cachedOtp.otp !== otp) {
+        throw new AppError("Invalid or Expired Otp", 400);
+    }
+
+    await User.findOneAndUpdate(
+        { _id: user._id, status: "pending" },
+        {
+            $set: { status: "active" },
+            $unset: { registrationExpiresAt: "" }
+        },
+        { new: true }
+    );
+
+    await redis.del(redisKey)
+}

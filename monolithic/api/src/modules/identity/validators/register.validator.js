@@ -5,7 +5,9 @@ export const initRegisterValidator = [
         .notEmpty()
         .withMessage('fullname is required')
         .isString()
-        .withMessage('fullName must be a string'),
+        .withMessage('fullName must be a string')
+        .isLength({ min: 3, max: 30 })
+        .withMessage("fullname length between 3 to 30"),
     body('email')
         .notEmpty()
         .withMessage('email is required')
@@ -30,4 +32,18 @@ export const initRegisterValidator = [
         .withMessage(
             "Password must be characters and include uppercase, lowercase, number, and special character"
         )
+]
+
+export const verifyRegisterViewerValidator = [
+    body("otp")
+        .notEmpty()
+        .withMessage("otp is required")
+        .isLength({ min: 6, max: 6 })
+        .withMessage("otp must be six digit"),
+    body('email')
+        .notEmpty()
+        .withMessage('email is required')
+        .isEmail()
+        .normalizeEmail()
+        .withMessage('Invalid Email formet'),
 ]

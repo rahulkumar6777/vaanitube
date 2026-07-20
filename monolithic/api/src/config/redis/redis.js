@@ -4,18 +4,28 @@ import { envs } from '../../lib/env.js';
 
 let redis;
 
-
-
-
 export const connectRedis = async () => {
-    redis = new Redis(`${envs.REDIS_URL}`, {
-        enableReadyCheck: true,
-        lazyConnect: true
-    });
+    if (envs.NODE_ENV === 'production') {
+        redis = new Redis(`${envs.REDIS_URL}`, {
+            enableReadyCheck: true,
+            lazyConnect: true
+        });
 
-    await redis.set('foo', 'bar');
-    console.log("Redis Connected")
-    return redis;
+        await redis.set('foo', 'bar');
+        console.log("Redis Connected")
+        return redis;
+    } else {
+        redis = new Redis({
+            host: `${envs.NODE_ENV === 'production' ? `${envs.REDIS_HOST}` : 'localhost'}`,
+            port: `${envs.NODE_ENV === 'production' ? `${envs.REDIS_PORT}` : '6379'}`,
+            enableReadyCheck: true,
+            lazyConnect: true
+        });
+
+        await redis.connect();
+        console.log("Redis Connected")
+        return redis;
+    }
 }
 
 
