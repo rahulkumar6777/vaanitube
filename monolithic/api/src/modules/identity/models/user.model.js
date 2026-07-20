@@ -21,10 +21,6 @@ const userschema = new mongoose.Schema({
         index: true,
         trim: true,
     },
-    countryCode: {
-        type: String,
-        required: true
-    },
     phoneNo: {
         type: String,
     },

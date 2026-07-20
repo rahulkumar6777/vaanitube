@@ -14,7 +14,7 @@ export const initRegisterViewer = async (req) => {
 
     const redis = getRedis();
 
-    const { fullName, email, phoneno, password } = req.body;
+    const { fullName, email, phoneno, password, age } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -40,6 +40,8 @@ export const initRegisterViewer = async (req) => {
         fullname: fullName,
         email: email,
         password: password,
+        age,
+        phoneNo: phoneno,
         role: "viewer"
     });
 
@@ -101,7 +103,7 @@ export const verifyRegisterViewerService = async (req) => {
             $set: { status: "active" },
             $unset: { registrationExpiresAt: "" }
         },
-        { new: true }
+        { returnDocument: "after" }
     );
 
     await redis.del(redisKey)

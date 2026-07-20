@@ -17,8 +17,14 @@ export const initRegisterValidator = [
     body('phoneno')
         .notEmpty()
         .withMessage('phoneNO is required')
-        .isMobilePhone()
-        .withMessage('Invalid phone no'),
+        .isMobilePhone('any', { strictMode: true })
+        .withMessage('Invalid phone no , enter phone no with country code'),
+    body('age')
+        .notEmpty()
+        .withMessage("age is required")
+        .isInt({ min: 10, max: 120 })
+        .withMessage('Age must be between 10 to 120')
+        .toFloat(),
     body('password')
         .notEmpty()
         .withMessage('password is required')
