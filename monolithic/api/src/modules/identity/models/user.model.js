@@ -37,9 +37,18 @@ const userschema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    verificationPhotos: {
-        type: [String]
-    },
+    verificationPhotos: [
+        {
+            fileId: {
+                type: String,
+                required: true
+            },
+            publicUrl: {
+                type: String,
+                required: true
+            }
+        }
+    ],
     address: {
         type: String,
     },
