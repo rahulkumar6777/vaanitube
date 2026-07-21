@@ -25,11 +25,11 @@ const storage = multer.diskStorage({
     }
 })
 
-const uploadImage = multer({
+export const uploadImage = multer({
     storage: storage,
     limits: {
         fileSize: MAX_PIC_SIZE,
-        files: 1,
+        files: 2,
     },
     fileFilter: function (req, file, cb) {
         const ext = path.extname(file.originalname).toLocaleLowerCase();
@@ -47,15 +47,26 @@ export const handleUploadError = (err, _req, res, next) => {
         return next();
     }
 
-    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({
-            message: 'Profile picture must be smaller than 10MB'
-        });
+    if (err instanceof multer.MulterError) {
+        switch (err.code) {
+            case "LIMIT_FILE_SIZE":
+                return res.status(400).json({
+                    message: "Each image must be smaller than 10MB"
+                });
+
+            case "LIMIT_FILE_COUNT":
+                return res.status(400).json({
+                    message: "Maximum 2 images are allowed"
+                });
+
+            default:
+                return res.status(400).json({
+                    message: err.message
+                });
+        }
     }
 
     return res.status(err.status || 400).json({
         message: err.msg || 'Invalid file upload'
     });
 };
-
-export default upload;
