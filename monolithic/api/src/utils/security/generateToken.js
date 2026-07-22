@@ -71,6 +71,29 @@ const generateToken = async (userId, role, req) => {
     };
 }
 
+const deleteAllSessions = async (redis, userId) => {
+    const pattern = createSessionKey(userId, '*');
+    let cursor = '0';
+
+    do {
+        const [nextCursor, keys] = await redis.scan(
+            cursor,
+            'MATCH',
+            pattern,
+            'COUNT',
+            100
+        );
+
+        cursor = nextCursor;
+
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
+
+    } while (cursor !== '0');
+};
+
+
 export {
     SESSION_TTL_SECONDS,
     createSessionKey,
@@ -78,4 +101,5 @@ export {
     generateRefreshToken,
     generateAccessToken,
     generateToken,
+    deleteAllSessions
 }
