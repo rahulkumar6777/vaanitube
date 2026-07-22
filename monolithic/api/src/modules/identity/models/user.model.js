@@ -110,31 +110,4 @@ userschema.methods.checkpassword = async function (oldpassword) {
     return result;
 }
 
-userschema.methods.generateAccessToken = async function () {
-    return await jwt.sign(
-        {
-            _id: this.id,
-            role: this.role,
-            status: this.status
-        },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
-        }
-    )
-}
-
-userschema.methods.generateRefreshToken = async function () {
-    return await jwt.sign(
-        {
-            _id: this._id,
-            status: this.status
-        },
-        process.env.REFRESH_TOKEN_SECRET,
-        {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
-        }
-    )
-}
-
 export const User = mongoose.model('User', userschema);
