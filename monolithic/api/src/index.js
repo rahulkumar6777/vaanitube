@@ -14,6 +14,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+// cookie-parser
+import cookieParser from 'cookie-parser';
+app.use(cookieParser());
+
+
 // important security middleware
 import helmet from "helmet";
 import hpp from "hpp";
