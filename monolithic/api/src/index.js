@@ -14,6 +14,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+// cors
+import cors from 'cors';
+import { corsOption } from "./utils/security/cors.js";
+app.use(cors(corsOption));
+
+
 // cookie-parser
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
