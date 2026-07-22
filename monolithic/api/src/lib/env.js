@@ -37,5 +37,6 @@ export const envs = {
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
     REDIS_URL: process.env.REDIS_URL,
-    IPINFO_TOKEN: process.env.IPINFO_TOKEN
+    IPINFO_TOKEN: process.env.IPINFO_TOKEN,
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL
 }

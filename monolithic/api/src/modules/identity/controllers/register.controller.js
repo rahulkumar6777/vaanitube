@@ -1,7 +1,8 @@
 import { validationResult } from "express-validator";
 import { returnError } from "../../../utils/errors/errorHandler.js";
-import { initRegisterCreatorService, initRegisterViewer, verifyRegisterViewerService } from "../services/Register.service.js";
+import { initRegisterCreatorService, initRegisterViewer, verifyRegisterService } from "../services/Register.service.js";
 import fs from "fs/promises";
+import { envs } from "../../../lib/env.js";
 
 
 export const initRegisterViewerController = async (req, res) => {
@@ -27,7 +28,7 @@ export const initRegisterViewerController = async (req, res) => {
     }
 }
 
-export const verifyRegisterViewerController = async (req, res) => {
+export const verifyRegisterController = async (req, res) => {
     try {
 
         const errors = validationResult(req);
@@ -37,12 +38,16 @@ export const verifyRegisterViewerController = async (req, res) => {
             })
         }
 
-        await verifyRegisterViewerService(req);
+        const userRole = await verifyRegisterService(req);
 
-        return res.status(200).json({
-            success: true,
-            message: "Registration Verified SuccessFully"
-        });
+        return res.status(200).json(envs.NODE_ENV === 'production'
+            ? {
+                success: true,
+                message: "Registration Verified SuccessFully"
+            } : {
+                success: true,
+                message: "Registration SuccessFully! Your Id Verify by Your Team within 24-48hr"
+            });
 
     } catch (error) {
         returnError(res, error)

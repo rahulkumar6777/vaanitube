@@ -8,6 +8,7 @@ import { transporter } from "../../../utils/mail/transporter.js";
 import { User } from '../models/user.model.js';
 import { getLocationFromIP } from "../../../utils/getLocationFromIP.js";
 import { uploadOnDevload } from "../../../utils/devload/devload.js";
+import { creatorVerificationQueue } from "../../../utils/queues/queues.js";
 
 
 
@@ -26,11 +27,15 @@ export const initRegisterViewer = async (req) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
 
+        if (existingUser.status === 'active') {
+            throw new AppError('user with this email already exist', 409);
+        }
+
+
         if (existingUser.status === 'pending') {
             throw new AppError('Registration Already initiated', 400)
         }
 
-        throw new AppError('User Already exists With this email', 409)
     }
 
     const REGISTRATION_EXPIRY_MS = 10 * 60 * 1000;
@@ -72,7 +77,7 @@ export const initRegisterViewer = async (req) => {
     return;
 }
 
-export const verifyRegisterViewerService = async (req) => {
+export const verifyRegisterService = async (req) => {
     const redis = getRedis();
 
     const { otp, email } = req.body;
@@ -81,8 +86,9 @@ export const verifyRegisterViewerService = async (req) => {
     const cachedOtp = await redis.hgetall(redisKey);
 
     const user = await User.findOne({ email });
+    console.log(user)
     if (!user) {
-        throw new AppError('Registration expired. Please register again', 400);
+        throw new AppError('Registration expired or Registration not initiated. Please register again', 400);
     }
 
     if (user.status !== 'pending') {
@@ -98,7 +104,7 @@ export const verifyRegisterViewerService = async (req) => {
         throw new AppError("Invalid or Expired Otp", 400);
     }
 
-    await User.findOneAndUpdate(
+    const userData = await User.findOneAndUpdate(
         { _id: user._id, status: "pending" },
         {
             $set: { status: "active" },
@@ -107,7 +113,23 @@ export const verifyRegisterViewerService = async (req) => {
         { returnDocument: "after" }
     );
 
-    await redis.del(redisKey)
+    if (userData.role === 'creator') {
+        await creatorVerificationQueue.add('creatorVerification', {
+            fullName: userData.fullname,
+            username: userData.username,
+            email: userData.email,
+            phoneno: userData.phoneNo,
+            age: userData.age,
+            verificationType: userData.verificationType,
+            verificationValue: userData.verificationValue,
+            verificationPhotos: userData.verificationPhotos,
+            address: userData.address
+        })
+    }
+
+    await redis.del(redisKey);
+
+    return userData.role
 }
 
 export const initRegisterCreatorService = async (req) => {
@@ -163,7 +185,6 @@ export const initRegisterCreatorService = async (req) => {
         subject: 'Your Registration Otp',
         text: `Your Registration otp is ${otp}`
     });
-
 
     const redisKey = redisCachingKey.UserOtp(newUser.email);
     redis.hset(redisKey, {
