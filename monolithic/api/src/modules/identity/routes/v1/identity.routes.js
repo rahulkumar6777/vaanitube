@@ -2,6 +2,8 @@ import express from 'express';
 import { initRegisterValidator, verifyRegisterViewerValidator, initRegisterCreatorValidation } from '../../validators/register.validator.js';
 import { initRegisterViewerController, verifyRegisterController, initRegisterCreatorController } from '../../controllers/register.controller.js';
 import { uploadImage, handleUploadError } from '../../../../middleware/multer.middleware.js';
+import { loginValidator } from '../../validators/login.validator.js';
+import { loginController } from '../../controllers/login.js';
 
 
 const router = express.Router();
@@ -15,4 +17,6 @@ router.post('/register/creator-init', uploadImage.array("verificationPhotos", 2)
 
 // verify register
 router.post('/register/verify', verifyRegisterViewerValidator, verifyRegisterController);
+
+router.post('/login', loginValidator, loginController);
 export default router;

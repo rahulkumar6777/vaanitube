@@ -104,12 +104,17 @@ export const verifyRegisterService = async (req) => {
         throw new AppError("Invalid or Expired Otp", 400);
     }
 
+    const updateUserData = user.role === 'viewer' ? {
+        $set: { status: "active" },
+        $unset: { registrationExpiresAt: "" }
+    } : {
+        $set: { status: "inactive" },
+        $unset: { registrationExpiresAt: "" }
+    }
+
     const userData = await User.findOneAndUpdate(
         { _id: user._id, status: "pending" },
-        {
-            $set: { status: "active" },
-            $unset: { registrationExpiresAt: "" }
-        },
+        updateUserData,
         { returnDocument: "after" }
     );
 
