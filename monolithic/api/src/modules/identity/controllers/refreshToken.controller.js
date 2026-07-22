@@ -16,7 +16,6 @@ export const refreshTokenController = async (req, res) => {
 
         return res
             .cookie('RefreshToken', result.RefreshToken, getRefreshTokenOptions())
-            .cookie('AccessToken', result.AccessToken, getAccessTokenOptions())
             .json({ accessToken: result.AccessToken });
 
     } catch (error) {
