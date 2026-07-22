@@ -5,6 +5,7 @@ import { getRedis } from '../../config/redis/redis.js';
 import { redisCachingKey } from '../cache/rediskeys.js';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+const MAX_SESSIONS_PER_USER = 2;
 const createSessionKey = (userId, tokenId) => redisCachingKey.SessionKey(userId, tokenId)
 
 const extractDevice = (ua = '') => {
@@ -20,6 +21,73 @@ const extractDevice = (ua = '') => {
 };
 
 const generateHashRefreshToken = (refreshToken) => crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+const getSessionKeys = async (redis, userId) => {
+    const pattern = createSessionKey(userId, '*');
+    let cursor = '0';
+    const sessionKeys = [];
+
+    do {
+        const [nextCursor, keys] = await redis.scan(
+            cursor,
+            'MATCH',
+            pattern,
+            'COUNT',
+            100
+        );
+
+        cursor = nextCursor;
+        sessionKeys.push(...keys);
+    } while (cursor !== '0');
+
+    return sessionKeys;
+};
+
+const enforceSessionLimit = async (redis, userId, maxSessions = MAX_SESSIONS_PER_USER, protectedSessionKeys = []) => {
+    const sessionKeys = await getSessionKeys(redis, userId);
+    if (sessionKeys.length <= maxSessions) {
+        return;
+    }
+    const protectedKeys = new Set(protectedSessionKeys);
+
+    const sessions = await Promise.all(
+        sessionKeys.map(async (key) => {
+            const sessionData = await redis.get(key);
+            if (!sessionData) {
+                return null;
+            }
+
+            try {
+                const session = JSON.parse(sessionData);
+                return {
+                    key,
+                    createdAt: Number(session.createdAt) || 0,
+                };
+            } catch (_error) {
+                return {
+                    key,
+                    createdAt: 0,
+                };
+            }
+        })
+    );
+
+    const activeSessions = sessions.filter(Boolean);
+    const extraSessionCount = activeSessions.length - maxSessions;
+    if (extraSessionCount <= 0) {
+        return;
+    }
+
+    const keysToDelete = activeSessions
+        .filter((session) => !protectedKeys.has(session.key))
+        .sort((firstSession, secondSession) => firstSession.createdAt - secondSession.createdAt)
+        .slice(0, extraSessionCount)
+        .map((session) => session.key);
+
+    if (keysToDelete.length > 0) {
+        await redis.del(...keysToDelete);
+    }
+};
 
 const generateRefreshToken = (userId, role, tokenId) => {
     return jwt.sign(
@@ -55,6 +123,7 @@ const generateToken = async (userId, role, req) => {
         createSessionKey(userId, tokenId),
         JSON.stringify({
             hashedToken: generateHashRefreshToken(refreshToken),
+            role,
             ip: req?.ip || '',
             userAgent: req?.headers?.['user-agent'] || '',
             device: extractDevice(req?.headers?.['user-agent']),
@@ -64,6 +133,8 @@ const generateToken = async (userId, role, req) => {
         SESSION_TTL_SECONDS
     );
 
+    await enforceSessionLimit(redis, userId);
+
     return {
         RefreshToken: refreshToken,
         AccessToken: generateAccessToken(userId, role, tokenId),
@@ -72,31 +143,18 @@ const generateToken = async (userId, role, req) => {
 }
 
 const deleteAllSessions = async (redis, userId) => {
-    const pattern = createSessionKey(userId, '*');
-    let cursor = '0';
-
-    do {
-        const [nextCursor, keys] = await redis.scan(
-            cursor,
-            'MATCH',
-            pattern,
-            'COUNT',
-            100
-        );
-
-        cursor = nextCursor;
-
-        if (keys.length > 0) {
-            await redis.del(...keys);
-        }
-
-    } while (cursor !== '0');
+    const sessionKeys = await getSessionKeys(redis, userId);
+    if (sessionKeys.length > 0) {
+        await redis.del(...sessionKeys);
+    }
 };
 
 
 export {
     SESSION_TTL_SECONDS,
+    MAX_SESSIONS_PER_USER,
     createSessionKey,
+    enforceSessionLimit,
     generateHashRefreshToken,
     generateRefreshToken,
     generateAccessToken,
