@@ -1,0 +1,45 @@
+import { envs } from "../../lib/env.js";
+
+const baseOptions = {
+  httpOnly: true
+};
+
+export const getAccessTokenOptions = () => ({
+  ...baseOptions,
+  secure: envs.NODE_ENV === "production",
+  sameSite: envs.NODE_ENV === "production" ? "Strict" : "Lax",
+  domain: envs.NODE_ENV === "production" ? ".deployhub.cloud" : undefined,
+  expires: new Date(Date.now() + 2 * 60 * 60 * 1000)
+});
+
+export const getRefreshTokenOptions = () => ({
+  ...baseOptions,
+  secure: envs.NODE_ENV === "production",
+  sameSite: envs.NODE_ENV === "production" ? "Strict" : "Lax",
+  domain: envs.NODE_ENV === "production" ? "vaanitube-dashboard.deployhub.online" : undefined,
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+});
+
+export const getGithubOAuthStateCookieOptions = () => ({
+  ...baseOptions,
+  secure: envs.NODE_ENV === "production",
+  sameSite: "Lax",
+  maxAge: 10 * 60 * 1000
+});
+
+export const getClearGithubOAuthStateCookieOptions = () => ({
+  ...baseOptions,
+  secure: envs.NODE_ENV === "production",
+  sameSite: "Lax"
+});
+
+export const getClearAccessTokenOptions = () => ({
+  ...baseOptions,
+  secure: envs.NODE_ENV === "production",
+  sameSite: envs.NODE_ENV === "production" ? "Strict" : "Lax"
+});
+
+export const getClearRefreshTokenOptions = () => ({
+  ...getClearAccessTokenOptions(),
+  domain: envs.NODE_ENV === "production" ? "vaanitube-dashboard.deployhub.online" : undefined
+});
