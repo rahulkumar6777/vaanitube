@@ -16,6 +16,15 @@ const channelSettingsSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    subscriptionPrice: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    currency: {
+        type: String,
+        default: "INR",
+    }
 });
 
 export const ChannelSetting = mongoose.model('ChannelSetting', channelSettingsSchema);
