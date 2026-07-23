@@ -61,10 +61,13 @@ const channelschema = new mongoose.Schema({
         type: String,
         default: null
     },
-    activatedAt: {
-        type: Date,
-        default: null
-    }
+    planId: String,
+    planStatus: {
+        type: String,
+        enum: ["active", "expired"]
+    },
+    planStartedAt: Date,
+    planExpiresAt: Date
 })
 
 export const Channel = mongoose.model('Channel', channelschema);
