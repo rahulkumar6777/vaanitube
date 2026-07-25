@@ -160,8 +160,12 @@ export const verifyChannelPaymentService = async (req) => {
         { new: true, upsert: true }
     );
 
-    pendingOrder.status = "completed";
-    await pendingOrder.save({ validateBeforeSave: false })
+    await ChannelSetting.create({
+        allowSubscriptions: true,
+        channelId: channel._id,
+        showSubscriberCount: true
+    });
 
+    await PendingOrder.findByIdAndDelete(pendingOrder._id);
     return channel._id;
 }
