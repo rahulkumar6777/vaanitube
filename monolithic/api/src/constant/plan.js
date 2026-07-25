@@ -34,7 +34,7 @@ const unlimited = {
     isActive: true
 }
 
-const plans = {
+export const plans = {
     starter,
     growth,
     unlimited
