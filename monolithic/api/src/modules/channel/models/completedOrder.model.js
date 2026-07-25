@@ -41,7 +41,6 @@ const completedorderschema = new mongoose.Schema({
     },
     channelId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Channel",
         required: true,
         index: true
     }

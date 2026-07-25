@@ -14,7 +14,6 @@ const pendingorderschema = new mongoose.Schema({
     },
     channelId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
         index: true
     },
     months: {

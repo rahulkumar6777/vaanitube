@@ -8,6 +8,7 @@ export const createRazorpayOrder = async ({ amount, receipt, notes }) => {
             receipt: receipt,
             notes: notes
         });
+        return order;
     } catch (error) {
         console.error("Error creating order:", error);
         throw error;

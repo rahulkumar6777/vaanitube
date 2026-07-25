@@ -106,9 +106,9 @@ const generateAccessToken = (userId, role, tokenId) => {
         {
             _id: userId,
             role
-        }, envs.REFRESH_TOKEN_SECRET,
+        }, envs.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: envs.REFRESH_TOKEN_EXPIRY,
+            expiresIn: envs.ACCESS_TOKEN_EXPIRY,
             jwtid: tokenId
         })
 }

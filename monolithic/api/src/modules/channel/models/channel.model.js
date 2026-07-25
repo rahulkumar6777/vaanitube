@@ -60,11 +60,13 @@ const channelschema = new mongoose.Schema({
     planId: {
         type: String,
         default: null
-    },
-    planId: String,
+    },     
     planStatus: {
         type: String,
         enum: ["active", "expired"]
+    },
+    paymentId: {
+        type: String
     },
     planStartedAt: Date,
     planExpiresAt: Date
